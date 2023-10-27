@@ -1,0 +1,119 @@
+*** ClickNumber:	MH20110920120459
+ClickInfoType:	SingleClickAnalysis
+
+*** photographic image:	photograph.TIF
+Acquisition Date:	Tuesday, September 20, 2011
+Acquisition Time:	12:4:59
+Acquisition Seconds:	3399357899
+Pixel Width:	1
+Pixel Height:	1
+Binning Factor:	4
+Image Units:	counts
+f Number:	16
+Field of View:	20
+Filter Position:	1
+Emission filter:	Open
+Exposure Time Sec:	0.2
+Error Wave:	No Error
+
+*** luminescent image:	luminescent.TIF
+Acquisition Date:	Tuesday, September 20, 2011
+Acquisition Time:	12:5:5
+Acquisition Seconds:	3399357905
+Pixel Width:	1
+Pixel Height:	1
+Image Units:	counts
+Binning Factor:	8
+Luminescent Exposure (Seconds):	120
+Luminescent Exposure Units:	min
+f Number:	1
+Field of View:	20
+Read Bias Level:	505.589
+Emission filter:	Open
+Filter Position:	1
+Excitation filter:	Block
+Subject size:	1.5
+Demand Temperature:	-105
+Measured Temperature:	-105.75
+Error Wave:	No Error
+Cosmic:	0
+Background Corrected:	0
+Flat Field Corrected:	0
+
+*** readbias image:	readbias.TIF
+Acquisition Date:	Tuesday, September 20, 2011
+Acquisition Time:	12:4:59
+Acquisition Seconds:	3399357899
+Pixel Width:	1
+Pixel Height:	1
+Data Multiplier:	10
+Binning Factor:	8
+Demand Temperature:	-105
+Background Exposure (Seconds):	120
+Background Click:	BKG20110920014232
+
+*** darkcharge image:	background.TIF
+Acquisition Date:	Tuesday, September 20, 2011
+Acquisition Time:	12:4:59
+Acquisition Seconds:	3399357899
+Pixel Width:	1
+Pixel Height:	1
+Data Multiplier:	10
+Read Bias Level:	505.457
+Binning Factor:	8
+Demand Temperature:	-105
+Background Exposure (Seconds):	120
+Background Click:	BKG20110920014232
+
+*** readbiasonly image:	readbiasonly.TIF
+Acquisition Date:	Tuesday, September 20, 2011
+Acquisition Time:	12:5:3
+Acquisition Seconds:	3399357903
+Pixel Width:	1
+Pixel Height:	1
+Binning Factor:	8
+Read Bias Level:	505.589
+Demand Temperature:	-105
+Measured Temperature:	-105.75
+Data Multiplier:	1
+Background Exposure (Seconds):	120
+
+*** User Input:	
+User ID:	MH
+Display Type:	Overlay
+Displayed Key Choices:	Group;Comment1;Comment2;Time Point;
+
+*** User Label Name Set:	Xenogen Universal
+User:	
+Group:	Red 1.2.3
+Experiment:	
+Comment1:	PAKP1
+Comment2:	2minmed
+Time Point:	2h
+Animal Number:	
+Animal Strain:	
+Animal Model:	
+Sex:	
+View:	
+Cell Line:	
+Reporter:	
+Treatment:	
+Luc Injection Time:	
+IACUC Number:	
+
+*** ROIs:	
+ROI 1:	zColorIndex=1;ROI Type=Measurement;ColorTable=BlueRedGreen;Subject ROI=_none_;Subject ID=;Subject Label=;Bkg ROI=_none_;LineSize=2.000000;Locked=0;PositionLocked=0;Shape=Circle;Xc=206.343742030121;Yc=781.143802204995;Width=112.387495659832;Height=170.662493409375;Angle=0.0000;Label=ROI 1;cm per pixel=0.010416666667;ROIColor=16711680;
+ROI 2:	zColorIndex=1;ROI Type=Measurement;ColorTable=BlueRedGreen;Subject ROI=_none_;Subject ID=;Subject Label=;Bkg ROI=_none_;LineSize=2.000000;Locked=0;PositionLocked=0;Shape=Circle;Xc=329.554409451797;Yc=791.292801813423;Width=112.387495659832;Height=170.662493409375;Angle=0.0000;Label=ROI 2;cm per pixel=0.010416666667;ROIColor=16711680;
+ROI 3:	zColorIndex=1;ROI Type=Measurement;ColorTable=BlueRedGreen;Subject ROI=_none_;Subject ID=;Subject Label=;Bkg ROI=_none_;LineSize=2.000000;Locked=0;PositionLocked=0;Shape=Circle;Xc=593.990899241377;Yc=789.404301887074;Width=112.387495659832;Height=170.662493409375;Angle=0.0000;Label=ROI 3;cm per pixel=0.010416666667;ROIColor=16711680;
+ROI 4:	zColorIndex=1;ROI Type=Measurement;ColorTable=BlueRedGreen;Subject ROI=_none_;Subject ID=;Subject Label=;Bkg ROI=_none_;LineSize=2.000000;Locked=0;PositionLocked=0;Shape=Circle;Xc=720.965894337631;Yc=776.054302402862;Width=112.387495659832;Height=170.662493409375;Angle=0.0000;Label=ROI 4;cm per pixel=0.010416666667;ROIColor=16711680;
+ROI 5:	zColorIndex=1;ROI Type=Measurement;ColorTable=BlueRedGreen;Subject ROI=_none_;Subject ID=;Subject Label=;Bkg ROI=_none_;LineSize=2.000000;Locked=0;PositionLocked=0;Shape=Circle;Xc=978.628384385691;Yc=770.654302611756;Width=112.387495659832;Height=170.662493409375;Angle=0.0000;Label=ROI 5;cm per pixel=0.010416666667;ROIColor=16711680;
+ROI 6:	zColorIndex=1;ROI Type=Measurement;ColorTable=BlueRedGreen;Subject ROI=_none_;Subject ID=;Subject Label=;Bkg ROI=_none_;LineSize=2.000000;Locked=0;PositionLocked=0;Shape=Circle;Xc=1110.590879289458;Yc=770.654302611518;Width=112.387495659832;Height=170.662493409375;Angle=0.0000;Label=ROI 6;cm per pixel=0.010416666667;ROIColor=16711680;
+ROI 7:	zColorIndex=1;ROI Type=Measurement;ColorTable=BlueRedGreen;Subject ROI=_none_;Subject ID=;Subject Label=;Bkg ROI=_none_;LineSize=2.000000;Locked=0;PositionLocked=0;Shape=Circle;Xc=1331.615870755620;Yc=750.629303385442;Width=112.387495659832;Height=170.662493409375;Angle=0.0000;Label=ROI 7;cm per pixel=0.010416666667;ROIColor=16711680;
+ROI 8:	zColorIndex=1;ROI Type=Measurement;ColorTable=BlueRedGreen;Subject ROI=_none_;Subject ID=;Subject Label=;Bkg ROI=_none_;LineSize=2.000000;Locked=0;PositionLocked=0;Shape=Circle;Xc=1456.903365917761;Yc=754.791803225053;Width=112.387495659832;Height=170.662493409375;Angle=0.0000;Label=ROI 8;cm per pixel=0.010416666667;ROIColor=16711680;
+
+*** Tags:	 
+
+*** Comments:	 
+
+
+

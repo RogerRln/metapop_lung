@@ -1,0 +1,148 @@
+eli_time = time_clearance_thresh(res, time, p, 1./branch_volume);
+
+eli_time(1:end-1) - eli_time(end);
+
+branch_volume(1:end-1)./branch_volume(end);
+
+log_volratio = log(branch_volume(1:end-1)./branch_volume(end));
+%log_volratio = log((branch_volume(1:end-1).*p.Kd + 1)./(branch_volume(end).*p.Kd+1));
+time_diff = eli_time(1:end-1) - eli_time(end);
+
+% phage_killing = (p.phi*(4e10)^p.g);
+% immune_killing = (p.ep*p.Ki)/(1+(9e6/p.Kd));
+phage_killing = (p.phi*(1.8636e+11)^p.g);
+%immune_killing = (p.ep*p.Ki)/(1+(9e6/p.Kd));
+%immune_killing = (p.ep*p.Ki);
+immune_killing = (1/2.2796);
+both_killing = phage_killing + immune_killing;
+
+
+
+figure(3);
+plot(log_volratio, time_diff , 'ko', 'LineWidth', 2.5)
+parms = polyfit(log_volratio, time_diff, 1);
+hold on
+%plot(log_volratio, parms(1).*log_volratio + parms(2), '--r', 'LineWidth', 1.5)
+plot([6;log_volratio;0], (1/phage_killing).*[6;log_volratio;0], '--', 'LineWidth', 2.5, 'color', [0.9290 0.6940 0.1250])
+plot([6;log_volratio;0], (1/immune_killing).*[6;log_volratio;0], '--', 'LineWidth', 2.5, 'color', [0.4940 0.1840 0.5560])
+plot([6;log_volratio;0], (1/both_killing).*[6;log_volratio;0], '--g', 'LineWidth', 2.5)
+hold off
+%text(1, 4, ['slope = ' num2str(parms(1))], 'FontSize', 14)
+ylim([0 14])
+xlabel('log($\frac{V_i}{V_{bottom}}$)', 'Interpreter', 'latex')
+ylabel('$T_i - T_{bottom}$ (h)', 'Interpreter', 'latex')
+legend('simulations', 'phage killing', 'immune killing', 'both', 'location', 'best')
+legend box off
+set(gca, 'fontsize', 17, 'linewidth', 1.5)
+
+% file_name = '/Users/rrodriguez77/Dropbox (GaTech)/Phage-Immune_host-pathogen project/draft_metapopulation/version2_Sep132022/figures/model_volume_theory/volume_vs_clearance.eps';
+% exportgraphics(gcf,file_name);
+%%
+
+bs = res(22:end-1, 1:15);
+t_decline = time(22:end-1);
+dir_change = diff(bs);
+dir_change(:,1)./bs(1:end-1,1)
+
+t_diff =  diff(time(22:end));
+decrease = dir_change < 0;
+
+
+indx = bs > p.Ki;
+ind_vec = zeros(1,15);
+dens_vec = zeros(1,15);
+for i = 1:15
+    ind_pos = find(indx(:,i) > 0);
+    ind_vec(i) = ind_pos(end);
+    dens_vec(i) = bs(ind_vec(i), i);
+end
+
+
+%%
+
+bs = res(1:end, 1:15);
+br = res(1:end, 16:30);
+ph = res(1:end, (2*p.NP+1):3*p.NP);
+indx_kd = bs > p.Kd;
+bs_kd = zeros(1,15);
+ph_kd = zeros(1,15);
+for i = 1:size(bs,2)
+    ind = find(indx_kd(:,i));
+    %disp(bs(ind(end),i))
+%     bs_kd(i) = bs(ind(end),i);
+%     ph_kd(i) = ph(ind(end),i);
+    bs_kd(i) = bs(26,i);
+    ph_kd(i) = ph(26,i);
+end
+
+node_id = 2;
+time_id = 1;
+
+for j = 1:numel(bs(:,1))
+    phage_killing = (p.phi*(ph(j, node_id))^p.g);
+    immune_killing = (p.ep*p.Ki)/(1+((bs(j, node_id) + br(j, node_id))/p.Kd));
+    both_killing = phage_killing + immune_killing;
+    theory_rate  = (1/both_killing).*log_volratio;
+    mse(j) = mean((time_diff-theory_rate).^2);
+end
+
+[c, ind] = sort(mse) 
+
+
+phage_killing = (p.phi*(ph(ind(time_id), node_id))^p.g);
+immune_killing = (p.ep*p.Ki)/(1+((bs(ind(time_id), node_id) + br(ind(time_id), node_id))/p.Kd));
+%immune_killing = (p.ep*p.Ki);
+both_killing = phage_killing + immune_killing;
+
+
+figure(3);
+plot(log_volratio, time_diff , 'ko', 'LineWidth', 2.5)
+parms = polyfit(log_volratio, time_diff, 1);
+hold on
+%plot(log_volratio, parms(1).*log_volratio + parms(2), '--r', 'LineWidth', 1.5)
+plot([6;log_volratio;0], (1/phage_killing).*[6;log_volratio;0], '--', 'LineWidth', 2.5, 'color', [0.9290 0.6940 0.1250])
+plot([6;log_volratio;0], (1/immune_killing).*[6;log_volratio;0], '--', 'LineWidth', 2.5, 'color', [0.4940 0.1840 0.5560])
+plot([6;log_volratio;0], (1/both_killing).*[6;log_volratio;0], '--g', 'LineWidth', 2.5)
+hold off
+%text(1, 4, ['slope = ' num2str(parms(1))], 'FontSize', 14)
+ylim([0 14])
+xlabel('log($\frac{V_i}{V_{bottom}}$)', 'Interpreter', 'latex')
+ylabel('$T_i - T_{bottom}$ (h)', 'Interpreter', 'latex')
+legend('simulations', 'phage killing', 'immune killing', 'both', 'location', 'best')
+legend box off
+set(gca, 'fontsize', 17, 'linewidth', 1.5)
+
+
+%% 
+
+ep = p.ep;
+ki = p.Ki;
+kd = p.Kd;
+immune_killing = @(t,y) -(ep*ki*y)/(1+(y/kd));
+
+%y0 = bs(1,1); 
+y0 = 1e7; 
+tspan = [0:0.1:10];
+[t,y] = ode45(immune_killing,tspan,y0);
+
+c =  6.5350;
+ti= 0:0.1:10;
+Ides = kd./(c.*exp(ep.*ki.*ti)-1)
+
+
+% nid = 3;
+% tid = 41;
+%nid = 1;
+%tid = 26;
+nid = 2;
+tid = 30;
+b = res(tid,nid);
+b0 = res(tid,nid);
+c = b/kd;
+( (1+c)/(ep*ki) )
+res(tid, 30+nid)
+
+immune_time = ((1+c)/(ep*ki));
+
+log(branch_volume(nid)*b0)*immune_time
+%log(branch_volume(1)/branch_volume(end))*((1+c)/((ep*ki))+(1/phage_killing))

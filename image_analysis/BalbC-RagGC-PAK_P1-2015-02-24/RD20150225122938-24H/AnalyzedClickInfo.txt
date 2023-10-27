@@ -1,0 +1,133 @@
+*** ClickNumber:	RD20150225122938
+ClickInfoType:	SingleClickAnalysis
+
+*** photographic image:	photograph.TIF
+Acquisition Date:	Wednesday, February 25, 2015
+Acquisition Time:	12:29:43
+Acquisition Seconds:	3507708583
+Pixel Width:	1
+Pixel Height:	1
+Binning Factor:	4
+Image Units:	counts
+f Number:	8
+Field of View:	22.2
+Filter Position:	1
+Emission filter:	Open
+Exposure Time Sec:	0.2
+Object radius:	0.75
+Subject size:	1.5
+Error Wave:	No Error
+
+*** luminescent image:	luminescent.TIF
+Acquisition Date:	Wednesday, February 25, 2015
+Acquisition Time:	12:29:57
+Acquisition Seconds:	3507708597
+Pixel Width:	1
+Pixel Height:	1
+Image Units:	counts
+Binning Factor:	8
+Luminescent Exposure (Seconds):	300
+Luminescent Exposure Units:	min
+f Number:	1
+Field of View:	22.2
+Read Bias Level:	815.767
+Emission filter:	Open
+Filter Position:	1
+Excitation filter:	Block
+Subject size:	1.5
+Demand Temperature:	-90
+Measured Temperature:	-90
+Error Wave:	No Error
+Cosmic:	0
+Background Corrected:	0
+Flat Field Corrected:	0
+
+*** readbias image:	readbias.TIF
+Acquisition Date:	Wednesday, February 25, 2015
+Acquisition Time:	12:29:57
+Acquisition Seconds:	3507708597
+Pixel Width:	1
+Pixel Height:	1
+Data Multiplier:	10
+Binning Factor:	8
+Demand Temperature:	-90
+Measured Temperature:	-89
+Temperature Lock Status:	Locked
+Background Exposure (Seconds):	0.0
+Background Click:	BKG20150224040002
+
+*** darkcharge image:	background.TIF
+Acquisition Date:	Wednesday, February 25, 2015
+Acquisition Time:	12:29:57
+Acquisition Seconds:	3507708597
+Pixel Width:	1
+Pixel Height:	1
+Data Multiplier:	10
+Read Bias Level:	815.026
+Binning Factor:	8
+Demand Temperature:	-90
+Measured Temperature:	-89
+Temperature Lock Status:	Locked
+Background Exposure (Seconds):	300
+Background Click:	BKG20150224040002
+
+*** readbiasonly image:	readbiasonly.TIF
+Acquisition Date:	Wednesday, February 25, 2015
+Acquisition Time:	12:35:01
+Acquisition Seconds:	3507708901
+Pixel Width:	1
+Pixel Height:	1
+Binning Factor:	8
+Read Bias Level:	815.767
+Demand Temperature:	-90
+Measured Temperature:	-90
+Data Multiplier:	1
+Background Exposure (Seconds):	0.0
+
+*** User Label Name Set:	Living Image Universal
+User:	Dwayne
+Group:	IBBA
+Experiment:	treatment 25-02-2015
+Comment1:	24H post treatment
+Comment2:	RagGC PAK_P1+Blank- 1-2-3-4
+Time Point:	26H PI
+Animal Number:	
+Animal Strain:	
+Animal Model:	
+Sex:	female
+View:	
+Cell Line:	
+Reporter:	
+Treatment:	
+Luc Injection Time:	
+IACUC Number:	
+
+*** User Input:	
+User ID:	RD
+Display Type:	Overlay
+User:	
+Group:	
+Experiment:	
+Comment1:	
+Comment2:	
+Time Point:	
+Animal Number:	
+Animal Strain:	
+Animal Model:	
+Sex:	
+View:	
+Cell Line:	
+Reporter:	
+Treatment:	
+Luc Injection Time:	
+IACUC Number:	
+Displayed Key Choices:	User;Group;Experiment;Comment1;Comment2;Time Point;Sex;
+
+*** ROIs:	
+
+*** Tags:	 
+
+*** Comments:	 
+
+
+

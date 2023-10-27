@@ -1,0 +1,579 @@
+*** darkcharge image:	background.TIF
+Acquisition Date:	Thursday, September 22, 2011
+Acquisition Time:	10:53:13
+Acquisition Seconds:	3399526393
+Pixel Width:	1
+Pixel Height:	1
+Data Multiplier:	10
+Read Bias Level:	505.554
+Binning Factor:	8
+Demand Temperature:	-105
+Background Exposure (Seconds):	120
+Background Click:	BKG20110922014248
+
+*** readbias image:	readbias.TIF
+Acquisition Date:	Thursday, September 22, 2011
+Acquisition Time:	10:53:13
+Acquisition Seconds:	3399526393
+Pixel Width:	1
+Pixel Height:	1
+Data Multiplier:	10
+Binning Factor:	8
+Demand Temperature:	-105
+Background Exposure (Seconds):	120
+Background Click:	BKG20110922014248
+
+*** ClickNumber:	MH20110922105313
+ClickInfoType:	RawData
+Living Image Version:	3.2.0.8156 (Jul  7 2009)
+Modified Since Saved:	0
+
+*** User Label Name Set:	Xenogen Universal
+User:	
+Group:	
+Experiment:	
+Comment1:	
+Comment2:	
+Time Point:	
+Animal Number:	
+Animal Strain:	
+Animal Model:	
+Sex:	
+View:	
+Cell Line:	
+Reporter:	
+Treatment:	
+Luc Injection Time:	
+IACUC Number:	
+
+*** User Input:	
+User ID:	MH
+Display Type:	Overlay
+Displayed Key Choices:	User;Group;Experiment;Comment1;Comment2;
+
+*** Analysis User Input:	
+Comment2:	
+
+*** photographic image:	photograph.TIF
+Acquisition Date:	Thursday, September 22, 2011
+Acquisition Time:	10:53:13
+Acquisition Seconds:	3399526393
+Pixel Width:	1
+Pixel Height:	1
+Binning Factor:	4
+Image Units:	counts
+f Number:	16
+Field of View:	20
+Filter Position:	1
+Emission filter:	Open
+Exposure Time Sec:	0.2
+Error Wave:	No Error
+
+*** readbiasonly image:	readbiasonly.TIF
+Acquisition Date:	Thursday, September 22, 2011
+Acquisition Time:	10:53:17
+Acquisition Seconds:	3399526397
+Pixel Width:	1
+Pixel Height:	1
+Binning Factor:	8
+Read Bias Level:	505.546
+Demand Temperature:	-105
+Measured Temperature:	-105.75
+Data Multiplier:	1
+Background Exposure (Seconds):	120
+
+*** luminescent image:	luminescent.TIF
+Acquisition Date:	Thursday, September 22, 2011
+Acquisition Time:	10:53:19
+Acquisition Seconds:	3399526399
+Pixel Width:	1
+Pixel Height:	1
+Image Units:	counts
+Binning Factor:	8
+Luminescent Exposure (Seconds):	120
+Luminescent Exposure Units:	min
+f Number:	1
+Field of View:	20
+Read Bias Level:	505.546
+Emission filter:	Open
+Filter Position:	1
+Excitation filter:	Block
+Subject size:	1.5
+Demand Temperature:	-105
+Measured Temperature:	-105.75
+Error Wave:	No Error
+Cosmic:	0
+Background Corrected:	0
+Flat Field Corrected:	0
+Cosmic Corrected:	0
+Adapative FL corrected:	0
+FL Background Corrected:	0
+Intensity Calibration:	counts
+
+*** Camera System Info:	
+# Last File Modification on:08-30-04
+# Modified by:BA
+
+# is comment character (when at line start), blank lines are permitted
+Camera Info File Version Number:	1.09    # IVIS 100/50 Living Image 2.50 7-7-04 TI
+# Modified by DW 8-2-04
+# Igor Key:30017-RMERSTRH
+
+#################################################################
+#	Camera Parameters
+#################################################################
+
+Camera System ID:	IVIS 13173
+Camera System alias:	IVIS 13173
+System Configuration:	IVIS 100
+#IVIS 100
+#IVIS 50
+
+Camera System Info:	Spectral Instruments
+#Spectral Instruments
+#Andor
+
+Camera Type:	SI620EEV
+# EEV:SI620EEV
+# Andor:DW434
+
+Camera Serial Number:	600-424
+Camera Controller Serial Number:	600-5411
+
+Lens Type:	Navitar 50mm f/0.95
+Acquisition Start Routine:	LI_StartAcqRoper
+Acquisition Documentation Routine:	RoperDocAcquisitionInTextWave
+Acquisition Camera Settings Dialog:	RoperCameraSettingsDialog
+
+
+#camera parameters
+Camera CCD Type:	EEV
+# SI EEV:EEV
+# Andor:Andor
+
+Electronics Tray Part Number:	30052
+#Six Motor Tray:30052
+#Four Motor Tray:none or 30001
+
+Camera CCD Temperature:	-105
+# Andor:-70
+
+
+# Cryo Health check
+Cryo Check Test Temperature:	-115
+Cryo Check Pass Temperature:	-108
+#Cryo Check DO NOT EMPLOY FOR ANDOR
+#Cryo Check Test Day:
+
+
+# Spectral Cameras Only
+# typical values -> 2000, 90, EEV, 64, 80
+
+Camera Read Bias Offset:	2000
+# Andor:blank
+# SI cameras:2000
+
+DSI Time:	90
+# SI EEV:90
+# Andor:blank
+
+#Camera bin File:3115A.bin
+#Camera str File:SI620.str
+#Camera set File:600-486.set
+
+#Camera bin File:	2555c.bin
+Camera bin File:	2555D.bin
+Camera str File:	SI620.str
+Camera set File:	600-206.set
+
+# Roper, Andor:blank
+# SITe:2239b.bin
+# EEV 600-001 to 600-205:2555b.bin or X2555b.bin
+# EEV S/N 600-206 to 600-319:X2824b.bin
+# EEV S/N 600-322 and above:2555c.bin
+
+Camera CCD Serial Offset:	90
+Camera CCD Parallel Offset:	10
+
+#CCD ROI X offset:80
+#CCD ROI Y offset:0
+
+# Acceptable limits for read bias
+Read Bias Lower Limit:	0
+Read Bias Upper Limit:	3000
+Dark Charge Outlier Limit:	50
+
+#Image rotation
+Image Rotation:	90
+Image Transpose:	no
+
+#################################################################
+#	CCD Defect Map - FOV Clip Control
+#################################################################
+
+#CCDmap:1522,188,189,1521,189,190,-1,958,0,1919,-1,-1,0,0
+
+#This map draws a cross hair at 960,960 (use w/ Spectral EEV cameras)
+#CCDMap:960,0,1919,-1,960,0,1919,-1,-1,13,0
+
+#This map draws 2 vertical lines at 480 and 1440 pixels for determining FOV
+#Use w/ Spectral EEV Cameras
+#CCDMap:-1,480,0,1919,1440,0,1919,-1,-1,13,0
+
+FOV Clip Level:	10
+#percent of corners cut off in Luminescent.  Default = 10, set to higher when flat field correction is highly non symetrical
+
+Fluorescence FOV Clip Level:	10
+
+#################################################################
+#	Default control values
+#################################################################
+
+#default control values - 1,2,4,8,16 are permissible values for fstop
+Photographic fstop:	16
+Luminescent fstop:	1
+Photographic binning:	4
+# Andor:2
+# EEV:4
+
+Luminescent binning:	16
+# Andor:8
+# EEV:16
+
+#################################################################
+#	Filters
+#################################################################
+
+# Filter wheel contents (description appears in control panel menu)
+# Position 1 must always be labeled "Open"  (2 wheel system)
+
+Filter Position 1 label:	Open
+Filter Position 2 label:	480nm
+Filter Position 3 label:	540nm
+Filter Position 4 label:	620nm
+Filter Position 5 label:	610nm
+Filter Position 6 label:	DsRed
+Filter Position 7 label:	Cy5.5
+#Filter Position 8 label:ICG
+Filter Position 8 label:	ND3
+# For use with Fluorescence option only
+EM Filter Position 1 label:	Open
+EM Filter Position 2 label:	480nm
+EM Filter Position 3 label:	540nm
+EM Filter Position 4 label:	620nm
+EM Filter Position 5 label:	610nm
+EM Filter Position 6 label:	DsRed
+EM Filter Position 7 label:	Cy5.5
+#EM Filter Position 8 label:ICG
+EM Filter Position 8 label:	ND3
+
+# EX Position 1 must always be labeled "Block"
+EX Filter Position 1 label:	Block
+EX Filter Position 2 label:	GFP
+EX Filter Position 3 label:	DsRed
+EX Filter Position 4 label:	Cy5.5
+EX Filter Position 5 label:	ICG
+EX Filter Position 6 label:	GFP bkg
+EX Filter Position 7 label:	DsRed bkg
+EX Filter Position 8 label:	Cy5.5 bkg
+EX Filter Position 9 label:	ICG bkg
+EX Filter Position 10 label:	Empty
+EX Filter Position 11 label:	Empty
+EX Filter Position 12 label:	Empty
+
+#################################################################
+#	Spectral Imaging Filters parameters       VN 1/13/06
+#################################################################
+
+Spectral Imaging Filter 480:	480.21, 16.67, 0.8608
+Spectral Imaging Filter 540:	539.9, 20.79, 0.8494
+Spectral Imaging Filter 620:	620.07, 21.88, 0.9525
+Spectral Imaging Filter 610:	610, 250, 0.89
+
+#################################################################
+#	FOVs
+#################################################################
+
+# shelf FOV at each position (cm)
+# IVIS 100
+Shelf Position A FOV:	10
+Shelf Position B FOV:	15
+Shelf Position C FOV:	20
+Shelf Position D FOV:	25
+
+# IVIS 50
+#Shelf Position A FOV:4
+#Shelf Position B FOV:7
+#Shelf Position C FOV:10
+#Shelf Position D FOV:12
+
+#################################################################
+#	Motor Parameters
+#################################################################
+
+# Filter Wheel Parameters
+
+# filter wheel position calibration and Number of Pockets
+# (steps for one rotation, steps from home for position 1)
+Filter Wheel Rotation Steps:	18020
+Filter Wheel Position 1 Steps:	9910
+Filter Wheel Positions Per Wheel:	8
+
+# For use with Fluorescence option only:
+#Values will match "Filter Wheel Rotation Steps"
+EM Filter Wheel Rotation Steps:	18020
+EM Filter Wheel Position 1 Steps:	9910
+EM Filter Wheel Positions per Wheel:	8
+
+# For use with Fluorescence option only:
+EX Filter Wheel Rotation Steps:	800
+EX Filter Wheel Position 1 Steps:	780
+EX Filter Wheel Positions per Wheel:	12
+
+
+# shelf position calibration (steps from home)
+Shelf Position A steps:	167000
+Shelf Position B steps:	109000
+Shelf Position C steps:	50000
+Shelf Position D steps:	0
+Shelf Position Soft Limit:	198739
+Shelf Position Hard Limit:	199139
+
+
+Shelf Steps per mm:	
+
+
+# shelf cable pot monitor calibration
+# about 26 cm from position A-D, gives 0.1V per cm
+# values reproduce to +/- 0.01 V - so typical range x5
+Shelf Pot Monitor Range:	0.08
+Shelf Position A pot V:	1.63
+Shelf Position B pot V:	2.53
+Shelf Position C pot V:	3.42
+Shelf Position D pot V:	4.14
+
+
+# lens position calibration (steps from home)
+# 5000 steps=8.0 mm
+# All focus and FOV values measured 15 mm above the shelf surface
+Lens Position A steps:	4700
+Lens Position B steps:	7200
+Lens Position C steps:	8500
+Lens Position D steps:	9250
+Lens Position Soft Limit:	11501
+Lens Position Hard Limit:	11541
+
+
+# lens fstop calibration (steps from home)
+# home position is defined to be f16
+# f/1 calibrated to the "9" in 0.95
+Lens fstop 16 steps:	35
+Lens fstop 8 steps:	340
+Lens fstop 4 steps:	680
+Lens fstop 2 steps:	1170
+Lens fstop 1 steps:	1680
+Lens fstop Soft Limit:	1690
+
+# Motor speeds:F=initial, R=top, S=acceleration, H=homing
+# From 107 template 7-7-04 TI
+
+Lens Motor Speed F:	25
+Lens Motor Speed R:	65
+Lens Motor Speed S:	50
+Lens Motor Speed H:	225
+
+Lens fstop Motor Speed F:	35
+Lens fstop Motor Speed R:	50
+Lens fstop Motor Speed S:	200
+Lens fstop Motor Speed H:	500
+
+#EM Filter Motor Speed F:80
+#EM Filter Motor Speed R:230
+#EM Filter Motor Speed S:1000
+#EM Filter Motor Speed H:245
+
+EM Filter Motor Speed F:	20
+EM Filter Motor Speed R:	35
+EM Filter Motor Speed S:	240
+EM Filter Motor Speed H:	230
+
+Shelf Motor Speed F:	20
+Shelf Motor Speed R:	160
+Shelf Motor Speed S:	80
+Shelf Motor Speed H:	250
+
+#EX Filter Motor Speed F:80
+#EX Filter Motor Speed R:140
+#EX Filter Motor Speed S:230
+#EX Filter Motor Speed H:220  #This speed works well.  Faster and it doesn't home properly. TI 11-19-02
+
+# 12 Position EX Motor Speeds
+EX Filter Motor Speed F:	4096
+EX Filter Motor Speed R:	10000
+EX Filter Motor Speed S:	400
+EX Filter Motor Speed H:	360  # this speed works nicely for XFO12 for IVIS 100
+
+#################################################################
+#	Hardware Interface Configuration
+#################################################################
+# From 107 Template 7-5-04 TI
+Lens Motor Driver Number:	0
+Lens fstop Motor Driver Number:	3
+Filter Motor Driver Number:	1
+Shelf Motor Driver Number:	2
+EM Filter Motor Driver Number:	1
+EX Filter Motor Driver Number:	4
+Fiber Source Toggle NI Channel:	5
+
+Shelf Pot Monitor NI Channel:	4	#Shelf error? try using Channel 3 						    #pin 9
+Coldfinger Heater Resistor Monitor NI Channel:	0	#^ pin 3
+Lights Voltage Monitor NI Channel:	5     	#pin 13
+Darkbox Lights On Control NI Channel:	0		#^ pin 25
+Darkbox Door Entry LED NI Channel:	4		#^ pin 26
+Darkbox Door Open Monitor NI Channel:	2    	#pin 29
+Motor Board Hardware Reset NI Channel:	1    	#pin 27
+LED Source Selector NI Channel:	3    		#pin 31
+Lights Control Selector NI Channel:	3		#^ pin 31 not implemented as of 4/26/00
+Lights Control Channel:	1      			#pin 21, DAC1OUT
+LED Voltage Monitor NI Channel:	5   		#pin 13 not implemented as of 4/26/00
+Lights Voltage Monitor NI Channel:	5     	#pin 13
+Fiber Source Intensity Control NI Channel:	0
+# Adding computer control of lights (leds) for both old and new IVIS
+# Default values - BVB 5/1/01
+Lights Control Polarity:	1      # 0 for older units, 1 for modern IVIS's
+
+Photo Image Saturation Level:	70000	# ~12000 for EEV cameras
+
+#################################################################
+#	Photo - Lighting
+#################################################################
+
+#All E-Trays:
+Photo Bias Level:	61			#defaults to zero.there is currently no protection against excessively high values
+Minimum Photo Level:	750			#Bias Subtracted - Defaults to "Lighting Saturation Counts/10"
+Lighting Test Max Steps:	2		#defaults to 10 (as before); range is 1 - 10.  4 Motor Trays range is 1-6
+Lighting Saturation Counts:	70000	#maximum allowable counts/pixel allowed in photo;
+# Andor 70000  SI 70000   Roper 70000
+
+Lights Max DAC Value:	5.0		#1929
+Lights Min DAC Value:	2.8		#1924
+Photo Image Saturation Level:	70000	# ~12000 for EEV cameras
+
+# 6 Motor E-Trays only:
+Lighting Start Voltage:	2.97
+
+Lighting Step Size Bin 1:	0.3		#default 0.5 v
+Lighting Step Size Bin 2:	0.07		#default 0.5 v
+Lighting Step Size Bin 4:	0.07		#default 0.5 v
+
+LED Calibration Levels:	2,2.3,2.5,2.6,2.7,2.8,2.9,3,3.1,3.2,3.3,3.4,3.9,4.4,4.9
+LED Calibration Intensities:	1.314e-05,3.924e-04,1.226e-03,1.754e-03,2.387e-03,3.781e-03,9.616e-03,0.027,0.055,0.096,0.143,0.197,0.486,0.768,1.000
+LED Photo Reference Measurement:	C,0.2,4,16,3.125
+
+LED Photo Reference Ratio FOV A:	1.66	# Relative to Reference FOV
+LED Photo Reference Ratio FOV B:	3.62	# Relative to Reference FOV
+LED Photo Reference Ratio FOV D:	0.47	# Relative to Reference FOV
+
+
+#################################################################
+#	Fluorescence
+#################################################################
+Fluorescence kit installed:	yes
+
+Fluorescent lamp high voltage:	4.7
+Fluorescent lamp low voltage:	3.4
+
+#ND3 Filter calibrated service 4
+ND factor for GFP:	0.000902
+ND factor for DsRed:	0.000913
+ND factor for CY5.5:	0.001262
+ND factor for ICG:	0.008369
+ND factor for GFP bkg:	0.008774
+ND factor for DsRed bkg:	0.000902
+ND factor for CY5.5 bkg:	0.000938
+ND factor for ICG bkg:	0.002326
+
+
+#################################################################
+#	Flat-field Correction
+#################################################################
+# shelf flat field 4th order coefficients:k0,k1,k2,k3 in ff(r) = k0 + k1*r + k2*r^2 + k3*r^3
+# plus the x0, y0 coordinates for CCD chip offset
+# format is:k0,k1,k2,k3,x0,y0
+# flat field 5th order coefficients:k0,k1,k2,k3,k4,x,y
+# Calibrated by HV using flat field Device 8 on 11/06/08
+
+
+Shelf Position A FF5 f/1 Coefs:	1.0014,-0.024141,0.02706,-0.01363,0.0011286,-0.0075535,0.005152
+Shelf Position A FF5 f/2 Coefs:	0.99875,-0.053585,0.049636,-0.014833,0.0010115,-0.0027392,-0.0067897
+Shelf Position A FF5 f/4 Coefs:	1.0017,-0.015404,0.0058265,-0.0017209,4.7558e-05,-0.048884,-0.054732
+Shelf Position A FF5 f/8 Coefs:	0.99833,-0.0093142,0.0028203,-0.0014188,7.083e-05,-0.042543,-0.26567
+Shelf Position A FF5 f/16 Coefs:	0.99761,-0.0098199,0.0045573,-0.0019559,0.0001145,-0.055344,-0.28579
+
+Shelf Position B FF5 f/1 Coefs:	0.98921,0.026577,-0.015964,0.00035014,8.3149e-06,-0.019533,-0.023208
+Shelf Position B FF5 f/2 Coefs:	0.98909,0.0021581,-0.0036039,0.0010032,-0.00014351,-0.0033938,-0.067322
+Shelf Position B FF5 f/4 Coefs:	0.99042,0.0050801,-0.0049934,0.00082001,-6.3862e-05,0.03074,0.029778
+Shelf Position B FF5 f/8 Coefs:	0.98431,0.0051712,-0.0013341,-0.00028656,2.0045e-05,-0.04519,-0.35232
+Shelf Position B FF5 f/16 Coefs:	0.98349,0.0014432,0.0013202,-0.00074886,4.3462e-05,0.017884,-0.47498
+
+Shelf Position C FF5 f/1 Coefs:	0.98766,0.023055,-0.013011,0.0006563,-1.5675e-05,-0.0075763,-0.048324
+Shelf Position C FF5 f/2 Coefs:	0.98854,0.0046922,-0.0043314,0.0009271,-7.5243e-05,-0.0063486,-0.097192
+Shelf Position C FF5 f/4 Coefs:	0.97592,0.020948,-0.0091443,0.0011964,-5.6391e-05,0.14537,-0.080375
+Shelf Position C FF5 f/8 Coefs:	0.98279,0.0071316,-0.0019711,6.5515e-05,-1.8626e-06,0.20487,-0.62971
+Shelf Position C FF5 f/16 Coefs:	0.97089,0.014989,-0.0041553,0.00028465,-8.8631e-06,0.29055,-0.96549
+
+Shelf Position D FF5 f/1 Coefs:	0.98855,0.016755,-0.0093632,0.00048609,-1.1978e-05,-0.0034564,-0.052583
+Shelf Position D FF5 f/2 Coefs:	0.98113,0.013895,-0.0063797,0.00093244,-4.9302e-05,-0.0075495,-0.11378
+Shelf Position D FF5 f/4 Coefs:	0.99244,-0.0038201,0.0011112,-0.00018875,6.2726e-06,0.26567,-0.72975
+Shelf Position D FF5 f/8 Coefs:	0.98834,-0.00144,0.00052327,-0.00013204,4.4707e-06,0.21138,-0.71845
+Shelf Position D FF5 f/16 Coefs:	0.98354,0.00031432,0.0001566,-0.00010393,3.7727e-06,0.30554,-0.80061
+##################################################################
+##	Absolute Light Intensity Calibration
+##################################################################
+# New Intensity Calibration
+#Calibrated by ls using XLS-4(2.37e8) on 06/03/10
+
+Coef C-ccd at FOV 25, f1:	6.002E+05
+Coef C-ccd at FOV 20, f1:	6.787E+05
+Coef C-ccd at FOV 15, f1:	7.551E+05
+Coef C-ccd at FOV 10, f1:	9.168E+05
+Coef C-ccd at FOV 25, f2:	1.603E+06
+Coef C-ccd at FOV 20, f2:	1.757E+06
+Coef C-ccd at FOV 15, f2:	1.852E+06
+Coef C-ccd at FOV 10, f2:	2.013E+06
+Coef C-ccd at FOV 25, f4:	7.903E+06
+Coef C-ccd at FOV 20, f4:	8.772E+06
+Coef C-ccd at FOV 15, f4:	9.173E+06
+Coef C-ccd at FOV 10, f4:	1.001E+07
+Coef C-ccd at FOV 25, f8:	2.523E+07
+Coef C-ccd at FOV 20, f8:	2.782E+07
+Coef C-ccd at FOV 15, f8:	2.915E+07
+Coef C-ccd at FOV 10, f8:	3.158E+07
+Coef C-ccd at FOV 25, f16:	5.570E+07
+Coef C-ccd at FOV 20, f16:	6.155E+07
+Coef C-ccd at FOV 15, f16:	6.348E+07
+Coef C-ccd at FOV 10, f16:	6.925E+07
+
+C-ccd Calibration units:	p/sec/cm2/sr
+
+*** Graph Controls:	
+Overlay:	Overlay
+Reversed:	1
+Color Table:	Rainbow
+ColorTableIsLog:	0
+Intensity Calibration:	photons
+Calibration Value Per Count:	1
+Brightness:	100
+Gamma:	1.500000
+Alpha Blend:	100
+Rotation:	0
+Background:	1
+Cosmic:	1
+Flat Field:	1
+Color Table Min:	120741.125000
+Color Table Max:	2055810.875000
+Raw Color Table Min:	-19139.371094
+Raw Color Table Max:	2414822.500000
+
+
+

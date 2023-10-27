@@ -1,0 +1,1534 @@
+clc
+close all; 
+clear all;
+
+%% Read the anatomical data of mouse bronchial tree from Counter et al. 2013
+
+W_lung = 0.173; % g, total weight of a mouse lung
+Carrying_cap = 1e10; % CFU/g,  Carrying capacity used in 2017 Cell host & Microbe
+total_bact = W_lung*Carrying_cap;
+
+CT_Counter = readtable('./Counter_2012_airways.csv');
+CT_Counter = CT_Counter(1:end,1:5);
+CT_Counter = table2array(CT_Counter);
+[r,c] = size(CT_Counter);
+anatomy_airways = CT_Counter;
+%anatomy_airways = zeros(r,c);
+% for i = 1:r
+%     for j = 1:c
+%         strr = CT_Counter(i,j);
+%         if strr(1)
+%             anatomy_airways(i,j) = (strr(1));%str2num(strr{1})
+%         else
+%             anatomy_airways(i,j) = 0;
+%         end
+%     end
+% end
+
+generations = anatomy_airways(:,1);
+diameter=  anatomy_airways(:,2); % in mm
+diameter_std = anatomy_airways(:,3);
+branchlength = anatomy_airways(:,4); % in mm
+branchlength_std = anatomy_airways(:,5);
+
+% Consider the total lung volume of the mouse to calculate a new carrying
+% capacity based on this measure. The total lung volume for mouse is ~1 ml
+% = 1 cm^3 = 1000 mm^3
+
+airways = 2.^(generations); % number of airways per generation, assuming dichotomous branching pattern
+
+% Considering the patch area to calculate the new carrying capacity
+% W_lung*carrying_cap = lung_surface*new_carrying_cap
+% Area = pi.*diameter.*branchlength;
+% lung_surface = sum(Area.*airways); % mm^2
+%%new_kc = total_bact/lung_surface; % cfu/mm^2
+
+% Considering the mucus volume for the calculation of the new carrying capacity
+% mucus_thickness = 10*1e-3; % (10 um) to mm 
+% p.mucus_thickness = mucus_thickness;
+% total_mucusvolume = sum((Area*mucus_thickness).*airways); % mm^3
+% new_kc = total_bact/(total_mucusvolume*1e-3); %mm^3 to cm^3
+
+total_lungvolume = 1; % cm^3, According to Irvin et al. 2003
+new_kc = total_bact/(total_lungvolume); % CFU/cm^3
+
+
+%% Read number of airways per generation from Counter et al. 2013
+% Airways per generation were obtained by digitalizing and
+% extracting data points from Figure 7. from Counter et al. 2013 
+
+num_airways = readtable('/Users/rrodriguez77/Dropbox (GaTech)/Phage-Immune_host-pathogen project/codes/digitalize_number_airways/num_airways_pergen.csv');
+num_airways = table2array(num_airways);
+num_airways = round(num_airways);
+
+rad = diameter./2;
+volume_generation = pi*rad.^2.*branchlength; % in mm^3
+%lung_volume = sum(volume_generation.*num_airways(:,2));% 19.52 mm^3, according to Counter et al. anatomical measurements
+lung_volume = total_lungvolume*1e3;% 1 cm^3 = 1e3 mm^3, According to Irvin et al. 2003
+
+
+% Find the number of generations (under symmetrical assumption) that reach a volume <= lung_volume,
+
+lung_symmetrical = 0;
+i = 0;
+while lung_symmetrical <= lung_volume
+    lung_symmetrical = (2^i)*volume_generation(i+1) + lung_symmetrical;
+    if lung_symmetrical >= lung_volume
+        break
+    end
+    i = i+1;  
+end
+
+last_gen = i-1; % Last generation that gives a volume of the symmetrical lungh <= Actual lung volume
+total_generations = last_gen +1; % total number of generations that add up to a symmetrical lung volume <= Actual lung volume
+
+%% Initialize variables and assign values to parameters
+Ng = total_generations; %Number of generations, count start at 1 (gen1 = trachea), we just have area measurements for 17 generations!
+[adj_metapop, adj_ghost] = Generate_chain_network(Ng);
+%load adj_met63.mat % 63 patches
+[nodes, nodes] = size(adj_metapop);
+p.NP = nodes;  % Number of patches
+p.T = 100; % Total simulation time
+
+
+B_S0 = zeros(p.NP,1); 
+B_R0 = zeros(p.NP,1);  
+P0 = zeros(p.NP,1); 
+I0 = zeros(p.NP,1);
+
+% Initial conditions
+B_S0(1) = 1e6/(volume_generation(1)*1e-3); %  1e6/1cm^3,  initial cond. when mucus volume was used 1e7, 1.8494e+07 cfu/ml
+%B_S0(15) = 1e6/(volume_generation(1)*1e-3); %  1e6/1cm^3,  initial cond. when mucus volume was used 1e7, 1.8494e+07 cfu/ml
+B_R0(1) = 0;  % CFU/ml
+P0(1) = 0; % PFU/ml
+I0(1:end) = 2.7e6; %cells/ml, Homogeneous distribution of immune cells
+
+% Length and Diameters of branches from generation 0 -> 3
+branch_volume = [];
+branch_length = [];
+branch_diameter = [];
+for i = 1:Ng
+    branch_volume = [branch_volume; repmat(volume_generation(i)*1e-3, 1, 1)]; % from mm^3 to cm^3
+    branch_length = [branch_length; repmat(branchlength(i)*0.1, 1, 1)]; % from mm to cm
+    branch_diameter = [branch_diameter; repmat(diameter(i)*0.1, 1, 1)]; % from mm to cm
+end
+
+p.branch_area = branch_volume;
+%p.branch_area = repmat(branch_volume(end), 15,1);
+%branch_length = repmat(mean(branch_length), size(branch_length)); % 1e-2 (for fast), mean(branch_length) for intermediate, 1 for slow
+
+% % bacteria size, pseudomonas typically ~1 um length & ~1um diameter
+% bact_length = 1; % um
+% bact_width = 1; %um
+% bact_area = bact_width*bact_length; % area in um^2
+% 
+% % immune cells carrying capacity based on total area of the branch
+% neutrophil_diam = 12; % neutrophil diameter in um
+% neutrophil_area = pi*(neutrophil_diam/2)^2;
+
+% Disperion rate of bacteria by swimming or diffusion
+% flagellar bacteria can move through swimming and non-flagellar bacteria
+% can move through diffusion
+% 2 cool articles talking about swimming and diffusion in mucin
+% environment,
+% https://www.sciencedirect.com/science/article/pii/S2211124719305868
+% (Salmonella),
+% https://www.sciencedirect.com/science/article/pii/S096098221201247X?via%3Dihub
+% (Pseudomonas).
+
+% % For a second, we assume bacteria are dispersing only via swimming
+% % diff_bact = 0.24; % um^2/sec
+% swimm_bact = 10; % um/sec
+% bl = branch_length*1e3; % branch length in um
+% time_inbranch = bl./swimm_bact; % sec 
+% time_inbranch = ((time_inbranch./60)./60); % hrs
+% dispersion_bact = time_inbranch.^-1; % dispersion rate of bacteria in each patch
+% 
+% % Dispersion rate of phage via diffusion
+% diff_phage = 3; % um^2/sec
+% branch_um2 = p.branch_area.*1e6; % branch area in um^2
+% time_inbranch = branch_um2./diff_phage; % sec
+% time_inbranch = (time_inbranch./60)./60;
+% dispersion_phage = time_inbranch.^-1; % dispersion rate of phage
+% 
+% % rolling speed of neutrophils according to https://onlinelibrary.wiley.com/doi/full/10.1002/adbi.201700243
+% speed_neutro = 4; %um/sec
+% time_inbranch = bl./speed_neutro; % sec 
+% time_inbranch = ((time_inbranch./60)./60); % hrs
+% dispersion_neutro = time_inbranch.^-1; % dispersion rate of neutrophils in each patch
+
+% We calculate the Dispersion parameter 'D' as the inverse of the time it takes to a
+% bacterium, neutrophil or phage to travel the whole length of the branch.
+% We consider bacteria and phage moves due to diffusion while neutrophil
+% swim directly to their chemmoattractants (e.g., bacteria derbis,
+% antigens, etc).
+
+[bac_d, phage_d, neutro_s] = mucin_to_Diff(4);
+% Calculate Dispersion of bacteria given a diffusion coefficient
+% t = x^2/diff
+diff_bact = bac_d;%3.9811;% 470 um^2/sec
+diff_bact = diff_bact*1e-8*3600; % conversion to cm^2/h
+time_inbranch = ((branch_length./2).^2)./(2*diff_bact); % hours
+dispersion_bact = time_inbranch.^-1; % dispersion rate of bacteria in each patch, h^-1
+
+% Calculate Dispersion of phage given its diffusion coefficient
+diff_phage = phage_d; % 3.84 um^2/sec
+diff_phage = diff_phage*1e-8*3600; % conversion to cm^2/h
+time_inbranch = ((branch_length./2).^2)./(2*diff_phage); % hours
+dispersion_phage = time_inbranch.^-1; % dispersion rate of phage, h^-1
+
+% rolling speed of neutrophils according to https://onlinelibrary.wiley.com/doi/full/10.1002/adbi.201700243
+% Calculate Dispersion of neutrophil given its speed rate
+% t = length/speed
+speed_neutro = 0; %19 um/min, if reducing 10 times I got elimination in all patches
+speed_neutro = speed_neutro*1e-4*60; % cm/h
+time_inbranch = (branch_length./2)./speed_neutro; % hours 
+dispersion_neutro = time_inbranch.^-1; % dispersion rate of neutrophils in each patch, h^-1
+
+% Parameters
+% susceptible bacteria growth rate
+p.rs = 0.75;
+% resistant bacteria growth rate
+p.rr = 0.675;
+% total bacteria carrying capacity in the largest branch (trachea)
+%p.Kc = 1e10;
+p.Kc = new_kc;
+% nonlinear adsorption rate of phage:
+p.phi = 5.4e-8;
+% power law exponent in phage infection:
+p.g = 0.62; % 0.6
+% immune response killing rate parameter:
+p.ep = 8.2e-8;
+%p.ep = (8.2e-8*2.4e7)./p.Ki;
+% bacterial conc. at which immune response is half as effective:
+p.Kd = 4.1e7;
+%p.Kd = p.Kc./244;
+% burst size of phage:
+p.beta = 100;
+% decay rate of phage:
+p.w = 0.07;
+% maximum growth rate of immune response:
+p.a = 0.97;
+% max capacity of immune response
+p.Ki = 2.4e7;
+% conc. of bacteria at which imm resp growth rate is half its maximum:
+p.Kn = 1e7;
+%p.Kn = p.Kc./1e3;
+% probability of emergence of phage-resistant mutation per cell division
+p.m = 2.85e-8; %
+% probability of reversible mutation probability (Phage resistant -> Phage sensitive)
+p.m2 = 2.85e-8;
+% Migration rate of BS, BR (should we have other migration rate for BR?)
+%p.D = 1e-2; % 1e-2
+
+% dispersion_bact(1) = 0.5*dispersion_bact(1);
+% dispersion_bact(end) = 0.5*dispersion_bact(end) + dispersion_bact(end);
+p.D = dispersion_bact;
+% Migration rate of P
+%p.DP = 1e-8; % 1e-8
+
+% dispersion_phage(1) = 0.5*dispersion_phage(1);
+% dispersion_phage(end) = 0.5*dispersion_phage(end) + dispersion_phage(end);
+p.DP = dispersion_phage;
+% Migratio8 rate of I
+%p.DI = 1e-2; %1e-2
+p.DI = dispersion_neutro;
+
+p.speed_neutro = speed_neutro;
+p.gamma = 1;
+p.alpha = 1;
+p.si = 5;
+p.branch_length = branch_length;
+p.adj_metapop = adj_metapop;
+
+[Tau_b, Tau_p, Tau_n] = dispersion_calculation(diff_bact, diff_phage, branch_length, adj_metapop);
+p.Tau_b = Tau_b;
+p.Tau_p = Tau_p;
+p.Tau_n = Tau_n;
+
+%  new experimental parameters p.mot and p.chemo to modulate motility and
+%  chemotaxis, respectively.
+%p.mot = 1;
+%p.chemo = 0.1;
+
+% Select the type of dispersion that is ocurring in the metapopulation
+% network:
+
+% 1. Homogeneous dispersion: The metapopulation network is a non-weighted network.
+% The fluxes between patches are proportional to the
+% degree of the source patches.
+
+% 2. Heterogeneous 1: The weights assigned to the metapop network are
+% proportional to the level of transit between patches. In this case, we
+% assume the transit is greater within generation than between generation
+% patches. The weights are determined by input parameters: within_g,
+% between_g.
+
+% 3. Heterogeneous 2: The weights of the edges of the metapopulation
+% network considers a biological component, a.k.a. the role of the
+% mucociliary transport and so the weights connecting daughter to parent patches (i.e.,
+% going from lower to higher generations) are larger than the weights conneting within generation or
+% parent-to-daughter patches. The weights are determined by input parameters: within_g,
+% between_g, and daupar. 
+
+
+% within generation weight
+wgen_w = 5;
+% between generations weight (or parent-to-daughter when 'heterogeneous_2')
+betgen_w= 3;
+% daughter-to-parent weight (considering mucociliary transport)
+daupar_w = 20;
+% type of dispersion ('homogeneous', 'heterogeneous')
+type = 'homogeneous';
+
+
+[metapop_network, weight_mat, metapop_netnovolume] = metapopchain_connectivity(adj_metapop,  p, wgen_w, betgen_w, daupar_w, type);
+p.type = type;
+p.weight_mat = weight_mat;
+
+
+
+% The weight matrix determines the weights of links connecting focal patch
+% 'i' with source patch 'j' but the TRANSPOSE of that weight matrix determines how much
+% flux is coming from source patch 'j' to focal patch 'i'. It only applies
+% to the 'heterogeneous' case.
+
+% NOTE April 27th 2020: apparently there is no use for the adj_ghost, see ODE
+% function, this not longer use the adj_ghost matrix, all considerations of
+% 'ghost' connections between focal node and sister node & focal node and
+% two daughter branches are taking into account in the
+% 'metapopchain_connectivity.m' function
+
+% NOTE April 29th 2020: The Dispersion rate (now 1/tau_[nbp]) think about
+% it in terms of a weighted matrix you pass to the ODE. The time you spent
+% traveling from an origin point (source, focal branch) to a target point
+% (target branch) will depend not only on the branch length your origin
+% point but it will also depend on the ratio of the branch length of the
+% target branch to the branch length of the origin point, such that,
+% tau_neutrophil = L_source/V * L_target/L_source = L_target/V, where L_source & 
+% L_target are the branch lengths of source and target branches, respect. while V is the
+% velocity of the neutrophils
+% Hence, we will need to construct an Tau_ij matrix with \tau (times) where the entries
+% will be the \tau times to travel from a source to a target branch given
+% some velocity (or diffusion coefficient) and branch lengths of the
+% different generations (branches) of the respiratory tree.
+% Similar to the metapop_network, Tau_ij will be transpose to Tau_ji and pass as input to the ODE
+% function, so when we multiply Tau_ji \times 'B' vector, we will consider how
+% long does it take to a bacterial population of 'source branch j' to travel
+% to 'target branch i'.
+% Tau_ij example for a 2 patch network and for the neutrophil case:
+% [0            (L1/V * L2/L1)^-1]' 
+% [(L2/V * L1/L2)^-1      0      ]
+
+% NOTE: for the OUTFLUX term we need to pass the
+% dispersion rate vector as the one we are currently using, that is,
+% tau_n = L_source/V, (no normalization not anything just regular D vector).
+
+
+nz_indexes = find(adj_ghost);
+if strcmp(type, 'homogeneous')
+    for i = 1:Ng
+        if i < Ng
+        metapop_network(i, i+1) =  metapop_network(i, i+1)*2; % multiply by two because the parent branch receives two times the flux from a single daughter branch
+        metapop_netnovolume(i, i+1) = metapop_netnovolume(i, i+1)*2;
+        end
+    end
+    p.A = metapop_network;
+    adj_ghost(nz_indexes) = metapop_network(nz_indexes);
+    p.ghost_network = adj_ghost;
+    p.metapop_netnovolume = metapop_netnovolume;
+elseif strcmp(type, 'heterogeneous')
+    metapop_network = metapop_network';
+    metapop_network = metapop_network.*repmat(p.branch_area',p.NP,1);
+    p.A = metapop_network;
+    adj_ghost(nz_indexes) = p.A(nz_indexes);
+    p.ghost_network = adj_ghost;
+end
+
+% NOTE: April 30th 2020 Correcting the metapop_network matrix for the
+% heterogeneous case:
+% First, I noticed I was messing with the transposition of the matrix and
+% the volume (p.branch_area) multiplication, so to fix it I add the following three lines above:
+%    metapop_network = metapop_network';
+%    metapop_network = metapop_network.*repmat(p.branch_area',p.NP,1);
+%    p.A = metapop_network;
+% AND eliminate the multiplication by the volume in the
+% 'metapopchain_connectivity.m' code for the heterogeneous scenario.
+
+
+% Uncomment the following lines to test infection dynamics only at the
+% trachea
+% p.A(1,:) = 0;
+% p.A(:,1) = 0;
+
+
+% if strcmp(type, 'heterogeneous')
+%     g = digraph(weight_mat);
+%     LWidths = 5*g.Edges.Weight/max(g.Edges.Weight);
+%     figure(1);
+%     plt = plot(g, 'EdgeLabel', g.Edges.Weight, 'LineWidth', LWidths, 'layout', 'layered');
+%     plt.NodeFontSize = 11;
+%     plt.EdgeFontSize = 10;
+%     plt.MarkerSize = 8;
+%     plt.NodeColor = 'k';
+%     set(gcf, 'position', [1000 243 983 1095])
+% else
+%     g = graph(weight_mat);
+%     figure(1);
+%     plt=plot(g, 'LineWidth', 1, 'layout', 'layered');
+%     plt.NodeFontSize = 11;
+%     plt.MarkerSize = 8;
+%     plt.NodeColor = 'k';
+%     set(gcf, 'position', [1000 243 983 1095])
+% end
+
+% Exploring option 2:
+    % More weight to links connecting same generation patches (sister)
+    % More weight to links that connect a patch to its parent patch, one
+    % generation above.
+    
+    
+    
+% Exploring option 3:   
+    % More weight to links connecting same generation patches (sister)
+    % Less weight to links that connect a patch to its parent patch, one
+    % generation above.
+    % More weight to links connecting a patch to its daughters.
+
+%p.ghost_vec = ones(Ng,1);
+%p.ghost_vec(1,1) = 0;
+%p.prob_link = ((sum(adj_metapop)*2).^-1)'; % vector with the probability of connecting patch i -> j patch given degree of patch i
+
+
+%ghost_network = adj_ghost.*repmat(p.prob_link', p.NP, 1).*repmat(p.branch_area',p.NP,1);
+
+
+
+y0 = [B_S0; B_R0; P0; I0];
+
+
+
+%%
+branch_info = [branch_diameter branch_length branch_volume];
+alpha_vec = calculate_alpha(branch_info);
+p.alpha_vec = alpha_vec./10;
+
+% simulate ecological model
+p.T = 100;
+
+
+p.gamma = 1;
+p.KB = 1e5;
+p.nexp = 1;
+
+nodes_pergen = 2.^(0:14);
+p.nodes_pergen = nodes_pergen';
+
+Nlung_perc = 10;
+p.max_neutrophils = (3.24e+06)*Nlung_perc; %1.46e7;
+
+% Baseline level of immune response
+
+%I0(1:end) = ((3.24e+06*Nlung_perc)/8.9)/sum(p.nodes_pergen.*branch_volume);%(2.7e6); % cells/ml
+I0(1:end) = (2.7e6*0.135)/sum(p.nodes_pergen.*branch_volume); % cells/ml
+%I0(1:end) = 0; % cells/ml
+
+B_S0 = zeros(p.NP,1); 
+b_dist = 1:3;
+p_dist = 1:3;
+%[bac_inocu, phage_inocu] = inoculum_distribution_fun(inocuDist_params(ind_fail(end),:), p, branch_volume);
+B_S0(b_dist) = 1e6/sum(p.nodes_pergen(b_dist).*branch_volume(b_dist)); % cfu/ml
+%B_S0(b_dist) = bac_inocu; % cfu/ml
+
+
+%max capacity of immune response
+% perc = 0.45;
+% p.Ki = ((2.4e7*lung_mass)/lung_volume)*perc;
+% I0(1:end) = ((2.7e6*0.135)/sum(p.nodes_pergen.*branch_volume))*perc; % cells/ml
+
+
+% N0_lung = (2.7e6*0.135);
+% perc_neu = [0.01 0.01 0.95];
+% rest_perc = 1-sum(perc_neu);
+% 
+% x = 0:14;
+% fun = @(r) exp(r.*x);
+% scaling = fun(1.6)./sum(fun(1.6));
+% for i = 1:15
+%     I0(i) =  (N0_lung*scaling(i))/(p.nodes_pergen(i).*branch_volume(i));
+% end
+
+% count = 0;
+% for i = 1:11
+%     %I0(i) =  (N0_lung*(rest_perc/12))/(p.nodes_pergen(i).*branch_volume(i));
+%     I0(i) = p.Ki;
+%     num_n = p.Ki*p.nodes_pergen(i)*branch_volume(i);
+%     count = count + num_n;
+% end
+% disp(count)
+% rest_neut = floor((N0_lung-count)/4);
+% 
+% %count = 1;
+% for i = 12:15
+%       %I0(i) = (N0_lung*perc_neu(count))/(p.nodes_pergen(i).*branch_volume(i));
+%      %I0(i) = rest_neut/(p.nodes_pergen(i).*branch_volume(i));
+%       I0(i) = 1/branch_volume(i);
+%    %   count = count+1;
+% end
+
+y0 = [B_S0; B_R0; P0; I0];
+
+
+% fileID1 = fopen('./mass_conservation/neutro_example.txt','a+');
+% p.fileID1 = fileID1;
+% fileID2 = fopen('./mass_conservation/BS_example.txt','a+');
+% p.fileID2 = fileID2;
+% fileID3 = fopen('./mass_conservation/BR_example.txt','a+');
+% p.fileID3 = fileID3;
+% fileID4 = fopen('./mass_conservation/P_example.txt','a+');
+% p.fileID4 = fileID4;
+
+
+% RECUERDA: Agregar el Events function cuando todo lo de los fluxes quede
+% listo
+%'Events', @myEventsFcn,
+options = odeset('Events', @myEventsFcn, 'RelTol', 1e-6, 'AbsTol', 1e-9, 'MaxStep', 0.1);
+tic
+[t,y] = ode15s(@(t,y) ode_metapopchain(t,y,p), [0:1:2], y0, options);
+
+BS2 = y(end, 1:p.NP)';
+BR2 = y(end, p.NP+1:2*p.NP)';
+P2 = y(end, (2*p.NP+1):3*p.NP)';
+P2(p_dist) = 1e7/sum(p.nodes_pergen(p_dist).*branch_volume(p_dist));
+% P2(p_dist) = phage_inocu;
+I2  = y(end,(3*p.NP+1):4*p.NP)';
+tspan = 2:p.T;
+
+yi = [BS2; BR2; P2; I2];
+
+[t3, y3, te, ye, ie] = ode15s(@(t,y) ode_metapopchain(t,y,p), tspan, yi, options);
+
+if te
+    disp([te t3(end) ie])
+end
+
+check = 0;
+count = 0;
+time_loop = [];
+res_loop = [];
+currentTime = t3(end);
+tic
+if currentTime < p.T-1 % Bacterial pop died before end of simulation
+    y_pre = y3;
+    while currentTime < p.T-1
+        check = 1;
+
+        BS3 = y_pre(end, 1:p.NP)';
+        for i = 1:length(BS3)
+            if BS3(i)*branch_volume(i) < 1
+                BS3(i) = 0;
+            end
+        end
+        BR3 = y_pre(end, p.NP+1:2*p.NP)';
+        for i = 1:length(BR3)
+            if BR3(i)*branch_volume(i) < 1
+                BR3(i) = 0;
+            end
+        end
+
+        P3 = y_pre(end, (2*p.NP+1):3*p.NP)';
+        I3  = y_pre(end,(3*p.NP+1):4*p.NP)';
+        tspan3 = (currentTime+0):p.T;
+        yii = [BS3;BR3;P3;I3];
+        
+        % This is the new global extinction threshold that stops
+        % the simulation once the bact numbers are < 1 in all nodes
+        if sum(BS3) == 0 && sum(BR3) == 0 
+            time_loop = [time_loop; currentTime+.01];
+            res_loop = [res_loop; yii'];
+            p.T = currentTime+.01;
+            break
+        end
+
+        % simulating diff eq
+        [t4, y4, te, ye, ie] = ode15s(@(t,y) ode_metapopchain(t,y,p), tspan3, yii, options);
+        y_pre = y4;
+        time_loop = [time_loop; t4(1:end)];
+        res_loop = [res_loop; y4(1:end,:)];
+        currentTime = t4(end);
+        count = count +1;
+        if te
+            disp([te t4(end) ie])
+        end
+        
+    end
+    time = [t(1:end-1); t3; time_loop]; % change here -> t3(1:end-1)
+    res = [y(1:end-1,:); y3; res_loop]; % change here -> y3(1:end-1, :)
+    
+else
+    time = [t(1:end-1); t3];
+    res = [y(1:end-1, :); y3]; 
+end
+%toc
+
+% fclose(fileID1);
+% fclose(fileID2);
+% fclose(fileID3);
+% fclose(fileID4);
+
+%BIU_fun = @(Ki_expval) ((p.Kc - p.Kd)/2) - sqrt(((p.Kc + p.Kd)^2)/4 - (p.Kc*p.Kd*p.ep*min(p.Ki, Ki_expval))/p.rs);
+BIU_fun = @(Ki_expval) ((p.Kc - p.Kd)/2) - sqrt(((p.Kc + p.Kd)^2)/4 - (p.Kc*p.Kd*p.ep*Ki_expval)/p.rs);
+
+p.BIU = BIU_fun(res(end,(3*p.NP+1):4*p.NP)');
+
+
+BS_final = res(end, 1:p.NP)';
+BR_final = res(end, p.NP+1:2*p.NP)';
+Btot = BS_final + BR_final;
+Btot = Btot.*branch_volume;
+Btot(Btot < 1) = 0;
+Btot =  Btot.*p.nodes_pergen;
+disp(['Total CFU after ' num2str(p.T) 'h: ' num2str(sum(Btot))])
+
+% %subplot(3, 1,1)
+% semilogy(time, res(:, [1+0 16+0 31+0 46+0]), 'linewidth', 3)
+% ylim([1/branch_volume(1) 1e12])
+% xlim([0 50])
+% xlabel('time (h)')
+% ylabel('CFU/ml')
+%title('Node 1', 'interpreter', 'latex', 'fontsize', 14)
+%legend('B_S', 'B_R', 'P', 'location', 'best')
+% legend boxoff
+% set(gca, 'fontsize', 18, 'fontweight', 'bold', 'linewidth', 2)
+
+% subplot(3, 1,2)
+% semilogy(time, res(:, [1+6 16+6 31+6 46+6]), 'linewidth', 2.5)
+% ylim([1/branch_volume(7) 1e12])
+% xlabel('time (h)')
+% ylabel('CFU/ml')
+% title('Node 7', 'interpreter', 'latex', 'fontsize', 14)
+% set(gca, 'fontsize', 14)
+% subplot(3, 1, 3)
+% semilogy(time, res(:, [1+14 16+14 31+14 46+14]), 'linewidth', 2.5)
+% ylim([1/branch_volume(15) 1e12])
+% xlabel('time (h)')
+% ylabel('CFU/ml')
+% title('Node 15', 'interpreter', 'latex', 'fontsize', 14)
+% set(gcf, 'position', [ 440    66   335   732])
+% set(gca, 'fontsize', 14)
+
+% semilogy(time, res(:, [1+0 16+0 31+0 46+0]).*branch_volume(1), 'linewidth', 2.5)
+% ylim([1 1e12])
+% xlabel('time (h)')
+% ylabel('Number of cells')
+% %title('Population dynamics, Node 1', 'interpreter', 'latex', 'fontsize', 14)
+% %legend('B_S', 'B_R', 'P', 'I', 'location', 'best')
+% %legend boxoff
+% set(gca, 'fontsize', 17, 'fontweight', 'bold')
+
+
+%%
+BS = res(:, 1:p.NP);
+BR = res(:, p.NP+1:2*p.NP);
+Btot = BS + BR;
+B_active = Btot(Btot >= 1);
+B_activelog = log10(B_active);
+histogram(B_activelog, 0:10, 'Normalization', 'probability')
+xlabel('log10 B')
+ylabel('Freq')
+set(gca, 'fontweight', 'bold', 'fontsize', 13)
+disp(['Mean = ' num2str(log10(mean(B_active))) ' and Median = ' num2str(log10(median(B_active)))])
+% filename = [pwd '/figures/immune_models/Chemo_local/heatmap_varying_gamma_NSpeed/K_B_1E4/BacDistributions/BacDist_BacDiff_3000_Nspeed_10_gamma_0_8'];
+% saveas(gcf, filename, 'epsc');
+%% Plotting metapopulation dynamics
+% use function 'figures_metapop(t,y,p)' to plot metapop dynamics
+if I0(1) ~=0
+    immune_stat = 'immuno+_chemo';
+else
+    immune_stat = 'immuno-';
+end
+if P2(1) ~=0
+    phage_stat = 'phage+';
+else
+    phage_stat = 'phage-';
+end
+
+simutype = [immune_stat phage_stat];
+figures_metapop(time,res,p,simutype)
+% 392   197   942   967
+
+%% Check for the effect of 'p.mod' the modulating factor for chemotaxis (relative to bacteria carrying capacity)
+
+% mod_factors = linspace(log10(1e-6), log10(1e-1), 51);
+% mod_factors = 10.^mod_factors;
+nodes_pergen = 2.^(0:14);
+% p.max_neutrophils = sum(branch_volume'.*nodes_pergen*p.Ki);
+p.max_neutrophils = 1e5;
+p.nodes_pergen = nodes_pergen';
+nodes_pergen = nodes_pergen';
+p.T = 120;
+p.gamma = 1;
+si_vals = [0:2:30];
+si_vals(1) = 1;
+
+for m = 1:length(si_vals)
+
+%     p.mod = mod_factors(m);
+    p.si = si_vals(m);
+
+
+    % simulate ecological model
+
+    % RECUERDA: Agregar el Events function cuando todo lo de los fluxes quede
+    % listo
+    %'Events', @myEventsFcn,
+    options = odeset('Events', @myEventsFcn, 'RelTol', 1e-6, 'AbsTol', 1e-9, 'MaxStep', 0.1);
+    tic
+    [t,y] = ode45(@(t,y) ode_metapopchain(t,y,p), [0:1:2], y0, options);
+
+    BS2 = y(end, 1:p.NP)';
+    BR2 = y(end, p.NP+1:2*p.NP)';
+    P2 = y(end, (2*p.NP+1):3*p.NP)';
+    P2(1) = B_S0(1)*10; % 10^8  PFU/ml
+    I2  = y(end,(3*p.NP+1):4*p.NP)';
+    tspan = 2:p.T;
+
+    yi = [BS2; BR2; P2; I2];
+
+    [t3,y3] = ode45(@(t,y) ode_metapopchain(t,y,p), tspan, yi, options);
+
+    check = 0;
+    count = 0;
+    time_loop = [];
+    res_loop = [];
+    currentTime = t3(end);
+    tic
+    if currentTime < p.T-1 % Bacterial pop died before end of simulation
+        y_pre = y3;
+        while currentTime < p.T-1
+            check = 1;
+            BS3 = y_pre(end, 1:p.NP)';
+            for i = 1:length(BS3)
+                if BS3(i)*branch_volume(i) < 1
+                    BS3(i) = 0;
+                end
+            end
+
+            BR3 = y_pre(end, p.NP+1:2*p.NP)';
+            for i = 1:length(BR3)
+                if BR3(i)*branch_volume(i) < 1
+                    BR3(i) = 0;
+                end
+            end
+
+            P3 = y_pre(end, (2*p.NP+1):3*p.NP)';
+            I3  = y_pre(end,(3*p.NP+1):4*p.NP)';
+            tspan3 = currentTime:p.T;
+            yii = [BS3;BR3;P3;I3];
+
+            % simulating diff eq
+            [t4,y4] = ode45(@(t,y) ode_metapopchain(t,y,p), tspan3, yii, options);
+            y_pre = y4;
+            time_loop = [time_loop; t4(1:end)];
+            res_loop = [res_loop; y4(1:end,:)];
+            currentTime = t4(end);
+            count = count +1;
+            disp([count currentTime])
+        end
+        time = [t(1:end-1); t3; time_loop];
+        res = [y(1:end-1,:); y3; res_loop]; 
+
+    else
+        time = [t(1:end-1); t3];
+        res = [y(1:end-1, :); y3]; 
+    end
+    toc
+
+    BS_final = res(end, 1:p.NP)';
+    BR_final = res(end, p.NP+1:2*p.NP)';
+    Btot = BS_final + BR_final;
+    Btot = Btot.*branch_volume;
+    Btot(Btot < 1) = 0;
+    Btot =  Btot.*nodes_pergen;
+
+    Btot_final(m) = sum(Btot);
+end
+Btot_final_copy = Btot_final;
+Btot_final_copy(Btot_final_copy == 0) = 1;
+ind_zero = find(Btot_final == 0);
+semilogy(si_vals, Btot_final_copy, 'LineWidth', 2.5)
+hold on
+semilogy(si_vals(ind_zero), Btot_final_copy(ind_zero), 'ro', 'linewidth', 2.5)
+hold off
+xlabel('SI values')
+ylabel('Bacteria number in lungs after 120h')
+set(gca, 'fontsize', 14)
+
+
+%% Explore the effect of varying speed_neutro and gamma
+
+% Test different diffusion coefficients of bacteria (10, 470 (original),
+% and 3000 um^2/sec)
+
+% Testing different diffusion coefficients for phage (0.001, 3.84, and 500
+% um^2/sec)
+
+p.T = 120;
+gamma_vals = 1:-.1:0;
+speed_neutro_vals = 0:20;
+p.mod = 1e-2;
+
+diff_bact_vect = [10 470 3000];
+%diff_phage_vect = [0.001 3.84 500];
+
+for BDiff = 1:length(diff_bact_vect)
+% Calculate Dispersion of bacteria given a diffusion coefficient
+% t = x^2/diff
+diff_bact = diff_bact_vect(BDiff) ;%diff_bact_vect(BDiff); % 470 um^2/sec
+diff_bact = diff_bact*1e-8*3600; % conversion to cm^2/h
+time_inbranch = ((branch_length./2).^2)./(2*diff_bact); % hours
+dispersion_bact = time_inbranch.^-1; % dispersion rate of bacteria in each patch, h^-1
+
+% Calculate Dispersion of phage given its diffusion coefficient
+diff_phage = 3.84; % 3.84 um^2/sec
+diff_phage = diff_phage*1e-8*3600; % conversion to cm^2/h
+time_inbranch = ((branch_length./2).^2)./(2*diff_phage); % hours
+dispersion_phage = time_inbranch.^-1; % dispersion rate of phage, h^-1
+
+dispersion_bact(1) = 0.5*dispersion_bact(1);
+dispersion_bact(end) = 0.5*dispersion_bact(end) + dispersion_bact(end);
+p.D = dispersion_bact;
+
+dispersion_phage(1) = 0.5*dispersion_phage(1);
+dispersion_phage(end) = 0.5*dispersion_phage(end) + dispersion_phage(end);
+p.DP = dispersion_phage;
+
+[Tau_b, Tau_p, Tau_n] = dispersion_calculation(diff_bact, diff_phage, branch_length, adj_metapop);
+p.Tau_b = Tau_b;
+p.Tau_p = Tau_p;
+p.Tau_n = Tau_n;
+
+% Save final mean bacteria concentration and variance in final bacteria
+% concentration
+Btot_final = zeros(length(gamma_vals), length(speed_neutro_vals));
+Btot_final_var = zeros(length(gamma_vals), length(speed_neutro_vals));
+
+% Save average number of occupied patches
+Occupancy = zeros(length(gamma_vals), length(speed_neutro_vals));
+% Save time to bacterial extinction
+Time_Extinction=zeros(length(gamma_vals), length(speed_neutro_vals));
+
+for g = 1:length(gamma_vals)
+    p.gamma = gamma_vals(g);
+    for sp = 1:length(speed_neutro_vals)
+        speed_neutro = speed_neutro_vals(sp); %19 um/min, if reducing 10 times I got elimination in all patches
+        speed_neutro = speed_neutro*1e-4*60; % cm/h
+        p.speed_neutro = speed_neutro;
+
+        options = odeset('Events', @myEventsFcn, 'RelTol', 1e-6, 'AbsTol', 1e-9, 'MaxStep', 0.1);
+
+        tic
+        [t,y] = ode45(@(t,y) ode_metapopchain(t,y,p), [0:1:2], y0, options);
+
+        BS2 = y(end, 1:p.NP)';
+        BR2 = y(end, p.NP+1:2*p.NP)';
+        P2 = y(end, (2*p.NP+1):3*p.NP)';
+        P2(1) = B_S0(1)*10; % 10^8  PFU/ml
+        I2  = y(end,(3*p.NP+1):4*p.NP)';
+        tspan = 2:p.T;
+
+        yi = [BS2; BR2; P2; I2];
+
+        [t3,y3] = ode45(@(t,y) ode_metapopchain(t,y,p), tspan, yi, options);
+
+        check = 0;
+        count = 0;
+        time_loop = [];
+        res_loop = [];
+        currentTime = t3(end);
+        tic
+        if currentTime < p.T-1 % Bacterial pop died before end of simulation
+            y_pre = y3;
+            while currentTime < p.T-1
+                check = 1;
+                BS3 = y_pre(end, 1:p.NP)';
+                for i = 1:length(BS3)
+                    if BS3(i) <= 1
+                        BS3(i) = 0;
+                    end
+                end
+
+                BR3 = y_pre(end, p.NP+1:2*p.NP)';
+                for i = 1:length(BR3)
+                    if BR3(i) <= 1
+                        BR3(i) = 0;
+                    end
+                end
+
+                P3 = y_pre(end, (2*p.NP+1):3*p.NP)';
+                I3  = y_pre(end,(3*p.NP+1):4*p.NP)';
+                tspan3 = currentTime:p.T;
+                yii = [BS3;BR3;P3;I3];
+
+                % simulating diff eq
+                [t4,y4] = ode45(@(t,y) ode_metapopchain(t,y,p), tspan3, yii, options);
+                y_pre = y4;
+                time_loop = [time_loop; t4(1:end)];
+                res_loop = [res_loop; y4(1:end,:)];
+                currentTime = t4(end);
+                count = count +1;
+                disp([count currentTime])
+            end
+            time = [t(1:end-1); t3; time_loop];
+            res = [y(1:end-1,:); y3; res_loop]; 
+
+        else
+            time = [t(1:end-1); t3];
+            res = [y(1:end-1, :); y3]; 
+        end
+        toc
+        
+        % Save final average bacteria concentration
+        BS_final = res(end, 1:p.NP)';
+        BR_final = res(end, p.NP+1:2*p.NP)';
+        Btot = BS_final + BR_final;
+        Btot_final(g,sp) = mean(Btot);
+        Btot_final_var(g,sp) = var(Btot);
+        
+        % Save time to bacterial extinction
+        BS = res(:, 1:p.NP);
+        BR = res(:, p.NP+1:2*p.NP);
+        Btotal = BS + BR;
+        
+        total_conc = sum(Btotal, 2);
+        last_timewsurvival = find(total_conc >= 1);
+        last_timewsurvival = last_timewsurvival(end);
+        indx_toextinction = last_timewsurvival + 1;
+        
+        if indx_toextinction >= length(time)      
+            time_toextinction = p.T;
+        else
+            time_toextinction = time(indx_toextinction);
+        end
+        
+        Time_Extinction(g, sp) = time_toextinction;
+        
+        % Save average number of occupied patches during simulation
+        occupied_patches =  sum(Btotal(1:last_timewsurvival,:) >= 1, 2);
+        avg_occupied_patches = mean(occupied_patches);
+        Occupancy(g, sp) = avg_occupied_patches;
+
+    end
+end
+
+%save Btot_final_diffBact_10_si_10_time120.mat Btot_final
+%save Btot_final_var_diffBact_10_si_10_time120.mat Btot_final_var
+
+%save Time_to_Extinction_diffBact_10_si_10_time120.mat Time_Extinction
+%save Patch_Occupancy_diffPBact_10_si_10_time120.mat Occupancy
+
+if diff_bact_vect(BDiff) == 0.001    
+    str1 = '0_001';
+    
+elseif diff_bact_vect(BDiff) == 3.84
+    str1 = '3_84';
+else
+    str1 = num2str(diff_bact_vect(BDiff));
+end
+
+save([pwd '/Data/HM_newchemo_Btot_final_diffBact_' str1 '_mod_e-2_time120.mat'], 'Btot_final');
+save([pwd '/Data/HM_newchemo_Btot_final_var_diffBact_' str1 '_mod_e-2_time120.mat'], 'Btot_final_var');
+save([pwd '/Data/HM_newchemo_Time_to_Extinction_diffBact_' str1 '_mod_e-2_time120.mat'], 'Time_Extinction');
+save([pwd '/Data/HM_newchemo_Patch_Occupancy_diffBact_' str1 'mod_e-2_time120.mat'], 'Occupancy');
+
+
+
+%% Create heatmaps associated to the variations of gamma and neutrophil speed parameters
+
+%load Btot_final_diffPhage_500_si_2.mat
+%load Btot_final_var_diffPhage_500_si_2.mat
+
+
+% Mean bacterial density heatmap
+figure(1)
+Btot_final_copy = Btot_final;
+Btot_final_copy(Btot_final_copy <= 1) = 1;
+heat = imagesc(log10(Btot_final_copy));
+h = colorbar;
+%caxis([0 max(max(Btot_final))])
+caxis([0 10])
+cmap = colormap(parula(1e3));
+cmap = [1,1,1; cmap];
+colormap(cmap)
+ylabel(h, 'log$_{10}$ CFU/ml', 'interpreter', 'latex', 'fontsize', 14)
+
+% Axis settings for the heatmap
+xlabel('v ($\mu m/min$)', 'interpreter', 'latex', 'fontsize', 14)
+set(gca,'XTick', 1:2:length(speed_neutro_vals), 'XTickLabel', speed_neutro_vals(1:2:length(speed_neutro_vals)))
+
+ylabel('$\gamma$', 'interpreter', 'latex', 'fontsize', 14)
+set(gca,'YTick', 1:2:length(gamma_vals), 'yticklabel', gamma_vals(1:2:length(gamma_vals)));
+
+title('Mean bacterial density after 120 hours', 'FontSize', 14, 'interpreter', 'latex')
+set(gca, 'fontsize', 15)
+filename = [pwd '/figures/immune_models/varying_phage_bact_diffusion/HM_model_balance/HM_mean_bacdensity_diffBact_' str1 '_mod_e-2_time120'];
+saveas(gcf, filename, 'png');
+saveas(gcf, filename, 'epsc');
+
+% Variance bacterial density
+figure(2)
+Btot_final_var_copy = Btot_final_var;
+Btot_final_var_copy(Btot_final_var_copy <= 1) = 1;
+imagesc(log10(Btot_final_var_copy))
+h = colorbar;
+%caxis([0 max(max(log10(Btot_final_var_copy)))])
+caxis([0 10])
+cmap = colormap(parula(1e3));
+cmap = [1,1,1; cmap];
+colormap(cmap)
+ylabel(h, 'log$_{10}$CFU/ml', 'interpreter', 'latex', 'fontsize', 14)
+
+% Axis settings for the heatmap
+xlabel('v ($\mu m/min$)', 'interpreter', 'latex', 'fontsize', 14)
+set(gca,'XTick', 1:2:length(speed_neutro_vals), 'XTickLabel', speed_neutro_vals(1:2:length(speed_neutro_vals)))
+
+ylabel('$\gamma$', 'interpreter', 'latex', 'fontsize', 14)
+set(gca,'YTick', 1:2:length(gamma_vals), 'yticklabel', gamma_vals(1:2:length(gamma_vals)));
+
+title('Variance bacterial density after 120 hours', 'FontSize', 14, 'interpreter', 'latex')
+set(gca, 'fontsize', 15)
+
+filename = [pwd '/figures/immune_models/varying_phage_bact_diffusion/HM_model_balance/HM_var_bacdensity_diffBact_' str1 '_mod_e-2_time120'];
+saveas(gcf, filename, 'png');
+saveas(gcf, filename, 'epsc');
+
+survival_thresh = [];
+Blog = log10(Btot_final_copy);
+for i = 1:size(Blog,2)
+    indx = find(Blog(:,i) > 0, 1);
+    if numel(indx)
+        survival_thresh(i) = indx-0.5;
+        %survival_thresh(i) = indx+0.5;
+    else
+        survival_thresh(i) = length(gamma_vals)+1;
+        %survival_thresh(i) = 0;
+    end
+end
+survival = [survival_thresh survival_thresh(end)];
+
+% Time to extinction heatmap
+figure(6)
+heat = imagesc(Time_Extinction);
+h = colorbar;
+%caxis([0 max(max(Btot_final))])
+caxis([min(min(Time_Extinction)) max(max(Time_Extinction))])
+cmap = colormap(parula(1e3));
+colormap(cmap)
+ylabel(h, 'Time (h)', 'interpreter', 'latex', 'fontsize', 14)
+
+% Axis settings for the heatmap
+xlabel('v ($\mu m/min$)', 'interpreter', 'latex', 'fontsize', 14)
+set(gca,'XTick', 1:2:length(speed_neutro_vals), 'XTickLabel', speed_neutro_vals(1:2:length(speed_neutro_vals)))
+
+ylabel('$\gamma$', 'interpreter', 'latex', 'fontsize', 14)
+set(gca,'YTick', 1:2:length(gamma_vals), 'yticklabel', gamma_vals(1:2:length(gamma_vals)));
+
+title('Time to bacteria elimination', 'FontSize', 14, 'interpreter', 'latex')
+set(gca, 'fontsize', 15)
+hold on
+plot(1:length(speed_neutro_vals)+1, survival, 'linewidth', 2, 'color', 'black');
+hold off
+filename = [pwd '/figures/immune_models/varying_phage_bact_diffusion/HM_model_balance/HM_time_extinction_diffBact_' str1 '_mod_e-2_time120'];
+saveas(gcf, filename, 'png');
+saveas(gcf, filename, 'epsc');
+
+% Mean occupancy heatmap
+figure(4)
+heat = imagesc(Occupancy);
+h = colorbar;
+%caxis([0 max(max(Btot_final))])
+caxis([min(min(Occupancy)) max(max(Occupancy))])
+cmap = colormap(parula(1e3));
+colormap(cmap)
+ylabel(h, 'Mean patch occupancy', 'interpreter', 'latex', 'fontsize', 14)
+
+% Axis settings for the heatmap
+xlabel('v ($\mu m/min$)', 'interpreter', 'latex', 'fontsize', 14)
+set(gca,'XTick', 1:2:length(speed_neutro_vals), 'XTickLabel', speed_neutro_vals(1:2:length(speed_neutro_vals)))
+
+ylabel('$\gamma$', 'interpreter', 'latex', 'fontsize', 14)
+set(gca,'YTick', 1:2:length(gamma_vals), 'yticklabel', gamma_vals(1:2:length(gamma_vals)));
+
+title('Average number of patches occupied by bacteria', 'FontSize', 14, 'interpreter', 'latex')
+set(gca, 'fontsize', 15)
+hold on
+plot(1:length(speed_neutro_vals)+1, survival, 'linewidth', 2, 'color', 'black');
+hold off
+filename = [pwd '/figures/immune_models/varying_phage_bact_diffusion/HM_model_balance/HM_patches_diffBact_' str1 'mod_e-2_time120'];
+saveas(gcf, filename, 'png');
+saveas(gcf, filename, 'epsc');
+end
+
+
+%% Analysis of variations in the innate immune response activation and phage dose
+
+
+p.T = 120;
+phage_moi = linspace(log10(100), log10(0.01), 21);
+immune_activation = 0:0.1:1;
+
+% Neutrophil parameters
+speed_val = 19; % um/min
+speed_neutro = speed_val; %19 um/min, if reducing 10 times I got elimination in all patches
+speed_neutro = speed_neutro*1e-4*60; % cm/h
+p.speed_neutro = speed_neutro;
+p.gamma = 0.7;
+p.si = 5;
+p.alpha = 1;
+p.mod = 1e-2;
+
+B_S0(1) = 1e6/(volume_generation(1)*1e-3); %  1e6/1cm^3,  initial cond. when mucus volume was used 1e7, 1.8494e+07 cfu/ml
+B_R0(1) = 0;  % CFU/ml
+P0(1) = 0; % PFU/ml
+
+% Save final mean bacteria concentration and variance in final bacteria
+% concentration
+Btot_final = zeros(length(phage_moi), length(immune_activation));
+Btot_final_var = zeros(length(phage_moi), length(immune_activation));
+
+% Save average number of occupied patches
+Occupancy = zeros(length(phage_moi), length(immune_activation));
+% Save time to bacterial extinction
+Time_Extinction=zeros(length(phage_moi), length(immune_activation));
+
+for g = 1:length(phage_moi)
+    for sp = 1:length(immune_activation)
+        
+        % Baseline level of immune response
+        %I0(1:end) = 10^6*immune_activation(sp); % cells/ml
+        I0(1:end) = (2.7e6)*immune_activation(sp); % cells/ml
+        
+        if immune_activation(sp) == 0
+            % max capacity of immune response
+            p.Ki = 2.4e7;
+        else
+            % max capacity of immune response
+            p.Ki = 2.4e7*immune_activation(sp);
+        end
+        
+        y0 = [B_S0; B_R0; P0; I0];
+        
+        options = odeset('Events', @myEventsFcn, 'RelTol', 1e-6, 'AbsTol', 1e-9, 'MaxStep', 0.1);
+
+        tic
+        [t,y] = ode45(@(t,y) ode_metapopchain(t,y,p), [0:1:2], y0, options);
+
+        BS2 = y(end, 1:p.NP)';
+        BR2 = y(end, p.NP+1:2*p.NP)';
+        P2 = y(end, (2*p.NP+1):3*p.NP)';
+        
+        P2(1) = B_S0(1)*10^phage_moi(g); % change phage MOI from 0.01 to 100
+        
+        I2  = y(end,(3*p.NP+1):4*p.NP)';
+        tspan = 2:p.T;
+
+        yi = [BS2; BR2; P2; I2];
+
+        [t3,y3] = ode45(@(t,y) ode_metapopchain(t,y,p), tspan, yi, options);
+
+        check = 0;
+        count = 0;
+        time_loop = [];
+        res_loop = [];
+        currentTime = t3(end);
+        tic
+        if currentTime < p.T-1 % Bacterial pop died before end of simulation
+            y_pre = y3;
+            while currentTime < p.T-1
+                check = 1;
+                BS3 = y_pre(end, 1:p.NP)';
+                for i = 1:length(BS3)
+                    if BS3(i) <= 1
+                        BS3(i) = 0;
+                    end
+                end
+
+                BR3 = y_pre(end, p.NP+1:2*p.NP)';
+                for i = 1:length(BR3)
+                    if BR3(i) <= 1
+                        BR3(i) = 0;
+                    end
+                end
+
+                P3 = y_pre(end, (2*p.NP+1):3*p.NP)';
+                I3  = y_pre(end,(3*p.NP+1):4*p.NP)';
+                tspan3 = currentTime:p.T;
+                yii = [BS3;BR3;P3;I3];
+
+                % simulating diff eq
+                [t4,y4] = ode45(@(t,y) ode_metapopchain(t,y,p), tspan3, yii, options);
+                y_pre = y4;
+                time_loop = [time_loop; t4(1:end)];
+                res_loop = [res_loop; y4(1:end,:)];
+                currentTime = t4(end);
+                count = count +1;
+                disp([count currentTime])
+            end
+            time = [t(1:end-1); t3; time_loop];
+            res = [y(1:end-1,:); y3; res_loop]; 
+
+        else
+            time = [t(1:end-1); t3];
+            res = [y(1:end-1, :); y3]; 
+        end
+        toc
+        
+        % Save final average bacteria concentration
+        BS_final = res(end, 1:p.NP)';
+        BR_final = res(end, p.NP+1:2*p.NP)';
+        Btot = BS_final + BR_final;
+        Btot_final(g,sp) = mean(Btot);
+        Btot_final_var(g,sp) = var(Btot);
+        
+        % Save time to bacterial extinction
+        BS = res(:, 1:p.NP);
+        BR = res(:, p.NP+1:2*p.NP);
+        Btotal = BS + BR;
+        
+        total_conc = sum(Btotal, 2);
+        last_timewsurvival = find(total_conc >= 1);
+        last_timewsurvival = last_timewsurvival(end);
+        indx_toextinction = last_timewsurvival + 1;
+        
+        if indx_toextinction >= length(time)      
+            time_toextinction = p.T;
+        else
+            time_toextinction = time(indx_toextinction);
+        end
+        
+        Time_Extinction(g, sp) = time_toextinction;
+        
+        % Save average number of occupied patches during simulation
+        occupied_patches =  sum(Btotal(1:last_timewsurvival,:) >= 1, 2);
+        avg_occupied_patches = mean(occupied_patches);
+        Occupancy(g, sp) = avg_occupied_patches;
+
+    end
+end
+
+
+str1 = num2str(speed_val);
+
+if p.gamma == 0.7
+    str2 = '0_7';
+else
+    str2 = num2str(p.gamma);
+end
+
+save([pwd '/Data/Btot_final_HM_DiffBact_470_NeutroSpeed_' str1 '_si_' num2str(p.si) '_gamma_' str2 '_time120_I0_2_7e6.mat'], 'Btot_final');
+save([pwd '/Data/Btot_final_var_HM_DiffBact_470_NeutroSpeed_' str1 '_si_' num2str(p.si) '_gamma_' str2 '_time120_I0_2_7e6.mat'], 'Btot_final_var');
+save([pwd '/Data/Time_to_Extinction_HM_DiffBact_470_NeutroSpeed_' str1 '_si_' num2str(p.si) '_gamma_' str2 '_time120_I0_2_7e6.mat'], 'Time_Extinction');
+save([pwd '/Data/Patch_Occupancy_DiffBact_HM_470_NeutroSpeed_' str1 '_si_' num2str(p.si) '_gamma_' str2 '_time120_I0_2_7e6.mat'], 'Occupancy');
+
+
+% Create heatmaps associated with variations in immune activation and phage dose
+
+
+% Mean bacterial density heatmap
+figure(1)
+Btot_final_copy = Btot_final;
+Btot_final_copy(Btot_final_copy <= 1) = 1;
+heat = imagesc(log10(Btot_final_copy));
+h = colorbar;
+%caxis([0 max(max(Btot_final))])
+caxis([0 10])
+cmap = colormap(parula(1e3));
+cmap = [1,1,1; cmap];
+colormap(cmap)
+ylabel(h, 'log$_{10}$ CFU/ml', 'interpreter', 'latex', 'fontsize', 14);
+
+% Axis settings for the heatmap
+xlabel('Immune activation (%)', 'interpreter', 'latex', 'fontsize', 14)
+set(gca,'XTick', 1:2:length(immune_activation), 'XTickLabel', 100*immune_activation(1:2:length(immune_activation)))
+
+set(gca, 'fontsize', 15)
+
+ylh = ylabel('MOI', 'interpreter', 'latex', 'fontsize', 14, 'position', [-0.6 11]);
+set(gca,'YTick', 1:5:length(phage_moi), 'yticklabel',[],'ytickmode','manual');
+yt = get(gca, 'YTick');
+for j=1:length(yt)
+  txt=text(0 , yt(j), ['10^{' num2str(phage_moi(yt(j))) '}']);
+  set(txt, 'HorizontalAlignment','center','fontsize', get(gca,'fontsize'))
+end
+
+title('Mean bacterial density after 100 hours', 'FontSize', 15, 'interpreter', 'latex')
+
+
+filename = [pwd '/figures/immune_models/Immune_mod_MOI/mean_bacdensity_HM_DiffBact_470_NeutroSpeed_' str1 '_si_' num2str(p.si) '_gamma_' str2 '_time120'];
+saveas(gcf, filename, 'png');
+saveas(gcf, filename, 'epsc');
+
+% Variance bacterial density
+figure(2)
+Btot_final_var_copy = Btot_final_var;
+Btot_final_var_copy(Btot_final_var_copy <= 1) = 1;
+imagesc(log10(Btot_final_var_copy))
+h = colorbar;
+%caxis([0 max(max(log10(Btot_final_var_copy)))])
+caxis([0 10])
+cmap = colormap(parula(1e3));
+cmap = [1,1,1; cmap];
+colormap(cmap)
+ylabel(h, 'log$_{10}$CFU/ml', 'interpreter', 'latex', 'fontsize', 14)
+
+% Axis settings for the heatmap
+xlabel('Immune activation (%)', 'interpreter', 'latex', 'fontsize', 14)
+set(gca,'XTick', 1:2:length(immune_activation), 'XTickLabel', 100*immune_activation(1:2:length(immune_activation)))
+
+set(gca, 'fontsize', 15)
+
+ylh = ylabel('MOI', 'interpreter', 'latex', 'fontsize', 14, 'position', [-0.6 11]);
+set(gca,'YTick', 1:5:length(phage_moi), 'yticklabel',[],'ytickmode','manual');
+yt = get(gca, 'YTick');
+for j=1:length(yt)
+  txt=text(0 , yt(j), ['10^{' num2str(phage_moi(yt(j))) '}']);
+  set(txt, 'HorizontalAlignment','center','fontsize', get(gca,'fontsize'))
+end
+
+title('Variance bacterial density after 100 hours', 'FontSize', 15, 'interpreter', 'latex')
+
+filename = [pwd '/figures/immune_models/Immune_mod_MOI/var_HM_bacdensity_DiffBact_470_NeutroSpeed_' str1 '_si_' num2str(p.si) '_gamma_' str2 '_time120'];
+saveas(gcf, filename, 'png');
+saveas(gcf, filename, 'epsc');
+
+survival_thresh = [];
+Blog = log10(Btot_final_copy);
+for i = 1:size(Blog,2)
+    indx = find(Blog(:,i) > 0, 1);
+    if numel(indx)
+        survival_thresh(i) = indx-0.5;
+        %survival_thresh(i) = indx+0.5;
+    else
+        survival_thresh(i) = length(phage_moi)+1;
+        %survival_thresh(i) = 0;
+    end
+end
+survival = [survival_thresh survival_thresh(end)];
+
+% Time to extinction heatmap
+figure(6)
+heat = imagesc(Time_Extinction);
+h = colorbar;
+caxis([min(min(Time_Extinction)) p.T])
+cmap = colormap(parula(1e3));
+colormap(cmap)
+ylabel(h, 'Time (h)', 'interpreter', 'latex', 'fontsize', 14)
+
+% Axis settings for the heatmap
+xlabel('Immune activation (%)', 'interpreter', 'latex', 'fontsize', 14)
+set(gca,'XTick', 1:2:length(immune_activation), 'XTickLabel', 100*immune_activation(1:2:length(immune_activation)))
+
+set(gca, 'fontsize', 15)
+
+ylh = ylabel('MOI', 'interpreter', 'latex', 'fontsize', 14, 'position', [-0.6 11]);
+set(gca,'YTick', 1:5:length(phage_moi), 'yticklabel',[],'ytickmode','manual');
+yt = get(gca, 'YTick');
+for j=1:length(yt)
+  txt=text(0 , yt(j), ['10^{' num2str(phage_moi(yt(j))) '}']);
+  set(txt, 'HorizontalAlignment','center','fontsize', get(gca,'fontsize'))
+end
+
+title('Time to bacteria elimination', 'FontSize', 15, 'interpreter', 'latex')
+
+% hold on
+% plot(1:length(immune_activation)+1, survival, 'linewidth', 2, 'color', 'black');
+% hold off
+filename = [pwd '/figures/immune_models/Immune_mod_MOI/time_extinction_HM_DiffBact_470_NeutroSpeed_' str1 '_si_' num2str(p.si) '_gamma_' str2 '_time120'];
+saveas(gcf, filename, 'png');
+saveas(gcf, filename, 'epsc');
+
+% Mean occupancy heatmap
+figure(4)
+heat = imagesc(Occupancy);
+h = colorbar;
+%caxis([0 max(max(Btot_final))])
+caxis([min(min(Occupancy)) max(max(Occupancy))])
+cmap = colormap(parula(1e3));
+colormap(cmap)
+ylabel(h, 'Mean patch occupancy', 'interpreter', 'latex', 'fontsize', 14)
+
+% Axis settings for the heatmap
+xlabel('Immune activation (%)', 'interpreter', 'latex', 'fontsize', 14)
+set(gca,'XTick', 1:2:length(immune_activation), 'XTickLabel', 100*immune_activation(1:2:length(immune_activation)))
+
+set(gca, 'fontsize', 15)
+
+ylh = ylabel('MOI', 'interpreter', 'latex', 'fontsize', 14, 'position', [-0.6 11]);
+set(gca,'YTick', 1:5:length(phage_moi), 'yticklabel',[],'ytickmode','manual');
+yt = get(gca, 'YTick');
+for j=1:length(yt)
+  txt=text(0 , yt(j), ['10^{' num2str(phage_moi(yt(j))) '}']);
+  set(txt, 'HorizontalAlignment','center','fontsize', get(gca,'fontsize'))
+end
+
+title('Average number of patches occupied by bacteria', 'FontSize', 15, 'interpreter', 'latex')
+% hold on
+% plot(1:length(immune_activation)+1, survival, 'linewidth', 2, 'color', 'black');
+% hold off
+filename = [pwd '/figures/immune_models/Immune_mod_MOI/patches_HM_DiffBact_470_NeutroSpeed_' str1 '_si_' num2str(p.si) '_gamma_' str2 '_time120'];
+saveas(gcf, filename, 'png');
+saveas(gcf, filename, 'epsc');
+
+%%
+speed_neutro_vals = [0 10 20 100 250 500 1000 1500];
+%speed_neutro_vals = [1000];
+p.T = 120;
+gamma_vals = [0 0.2 0.6 1];
+p.si = 5;
+Time_Extinction = zeros(length(gamma_vals), length(speed_neutro_vals));
+Btot_final = zeros(length(gamma_vals), length(speed_neutro_vals));
+Occupancy =  zeros(length(gamma_vals), length(speed_neutro_vals));
+
+for g = 1:length(gamma_vals)
+    p.gamma = gamma_vals(g);
+    for sp = 1:length(speed_neutro_vals)
+        speed_neutro = speed_neutro_vals(sp); %19 um/min, if reducing 10 times I got elimination in all patches
+        speed_neutro = speed_neutro*1e-4*60; % cm/h
+        p.speed_neutro = speed_neutro;
+
+        options = odeset('Events', @myEventsFcn, 'RelTol', 1e-6, 'AbsTol', 1e-9, 'MaxStep', 0.1);
+
+        tic
+        [t,y] = ode45(@(t,y) ode_metapopchain(t,y,p), [0:1:2], y0, options);
+
+        BS2 = y(end, 1:p.NP)';
+        BR2 = y(end, p.NP+1:2*p.NP)';
+        P2 = y(end, (2*p.NP+1):3*p.NP)';
+        P2(1) = B_S0(1)*10; % 10^8  PFU/ml
+        I2  = y(end,(3*p.NP+1):4*p.NP)';
+        tspan = 2:p.T;
+
+        yi = [BS2; BR2; P2; I2];
+
+        [t3,y3] = ode45(@(t,y) ode_metapopchain(t,y,p), tspan, yi, options);
+
+        check = 0;
+        count = 0;
+        time_loop = [];
+        res_loop = [];
+        currentTime = t3(end);
+        tic
+        if currentTime < p.T-1 % Bacterial pop died before end of simulation
+            y_pre = y3;
+            while currentTime < p.T-1
+                check = 1;
+                BS3 = y_pre(end, 1:p.NP)';
+                for i = 1:length(BS3)
+                    if BS3(i) <= 1
+                        BS3(i) = 0;
+                    end
+                end
+
+                BR3 = y_pre(end, p.NP+1:2*p.NP)';
+                for i = 1:length(BR3)
+                    if BR3(i) <= 1
+                        BR3(i) = 0;
+                    end
+                end
+
+                P3 = y_pre(end, (2*p.NP+1):3*p.NP)';
+                I3  = y_pre(end,(3*p.NP+1):4*p.NP)';
+                tspan3 = currentTime:p.T;
+                yii = [BS3;BR3;P3;I3];
+
+                % simulating diff eq
+                [t4,y4] = ode45(@(t,y) ode_metapopchain(t,y,p), tspan3, yii, options);
+                y_pre = y4;
+                time_loop = [time_loop; t4(1:end)];
+                res_loop = [res_loop; y4(1:end,:)];
+                currentTime = t4(end);
+                count = count +1;
+                disp([count currentTime])
+            end
+            time = [t(1:end-1); t3; time_loop];
+            res = [y(1:end-1,:); y3; res_loop]; 
+
+        else
+            time = [t(1:end-1); t3];
+            res = [y(1:end-1, :); y3]; 
+        end
+        toc
+        
+        % Save final average bacteria concentration
+        BS_final = res(end, 1:p.NP)';
+        BR_final = res(end, p.NP+1:2*p.NP)';
+        Btot = BS_final + BR_final;
+        Btot_final(g,sp) = mean(Btot);
+%         Btot_final_var(g,sp) = var(Btot);
+        
+        % Save time to bacterial extinction
+        BS = res(:, 1:p.NP);
+        BR = res(:, p.NP+1:2*p.NP);
+        Btotal = BS + BR;
+        
+        total_conc = sum(Btotal, 2);
+        last_timewsurvival = find(total_conc >= 1);
+        last_timewsurvival = last_timewsurvival(end);
+        indx_toextinction = last_timewsurvival + 1;
+        
+        if indx_toextinction >= length(time)      
+            time_toextinction = p.T;
+        else
+            time_toextinction = time(indx_toextinction);
+        end
+        
+        Time_Extinction(g, sp) = time_toextinction;
+        
+        % Save average number of occupied patches during simulation
+        occupied_patches =  sum(Btotal(1:last_timewsurvival,:) >= 1, 2);
+        avg_occupied_patches = mean(occupied_patches);
+        Occupancy(g, sp) = avg_occupied_patches;
+
+    end
+end
+
+% Tardo como 23 min para la simulacion con gamma = 0, v = 1000
+
+figure(1)
+plot(Time_Extinction(1,:), 'linewidth', 2.5)
+hold on
+plot(Time_Extinction(2,:), 'linewidth', 2.5)
+plot(Time_Extinction(3,:), 'linewidth', 2.5)
+plot(Time_Extinction(4,:), 'linewidth', 2.5)
+hold off
+xlabel('$v \; (\mu/min)$', 'interpreter', 'latex')
+ylabel('Time to bacteria elimination (h)', 'interpreter', 'latex')
+set(gca, 'xtick', 1:length(speed_neutro_vals), 'xticklabel', speed_neutro_vals, 'fontsize', 14)
+legend('$\gamma = 0$', '$\gamma = 0.2$', '$\gamma = 0.6$', '$\gamma = 1$', 'interpreter', 'latex', 'location', 'best')
+legend box off
+
+figure(2)
+plot(Occupancy(1,:), 'linewidth', 2.5)
+hold on
+plot(Occupancy(2,:), 'linewidth', 2.5)
+plot(Occupancy(3,:), 'linewidth', 2.5)
+plot(Occupancy(4,:), 'linewidth', 2.5)
+hold off
+xlabel('$v \; (\mu/min)$', 'interpreter', 'latex')
+ylabel('Average number of occupied patches', 'interpreter', 'latex')
+set(gca, 'xtick', 1:length(speed_neutro_vals), 'xticklabel', speed_neutro_vals, 'fontsize', 14)
+legend('$\gamma = 0$', '$\gamma = 0.2$', '$\gamma = 0.6$', '$\gamma = 1$', 'interpreter', 'latex', 'location', 'best')
+legend box off
+
+figure(3)
+plot(Btot_final(1,:), 'linewidth', 2.5)
+hold on
+plot(Btot_final(2,:), 'linewidth', 2.5)
+plot(Btot_final(3,:), 'linewidth', 2.5)
+plot(Btot_final(4,:), 'linewidth', 2.5)
+hold off
+xlabel('$v \; (\mu/min)$', 'interpreter', 'latex')
+ylabel('Mean bacterial density after 120 h', 'interpreter', 'latex')
+set(gca, 'xtick', 1:length(speed_neutro_vals), 'xticklabel', speed_neutro_vals, 'fontsize', 14)
+legend('$\gamma = 0$', '$\gamma = 0.2$',  '$\gamma = 0.6$', '$\gamma = 1$', 'interpreter', 'latex', 'location', 'best')
+legend box off
