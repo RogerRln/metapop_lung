@@ -8,7 +8,7 @@ Multi-drug resistant (MDR) infections caused by pathogenic bacteria are a global
 
 All the scripts used to generate main and supplementary figures are written in MATLAB (R2020b).
 
-1. Run the script 'Generate_all_figs.m' outside any of the folders to generate main and supplementary figures.
+1. Run the script 'Generate_all_figs.m' outside any folders to generate main and supplementary figures.
  
 'metapop_code' directory contains all the scripts (.m) and functions necessary to generate metapopulation model simulations
 'image_analysis' directory contains all the scripts (.m) and functions necessary to carry out imaging analysis of *P.a.* infected mice
