@@ -48,53 +48,48 @@ Ki_patch = p.Ki;
 % ghost daughter branches
 ghost_net = p.ghost_network;
 
-% speed neutro
+%  neutrophil transport parameters
 speed_neutro = p.speed_neutro;
 gamma = p.gamma;
 alpha = p.alpha;
+% airway length
 branch_length = p.branch_length;
+% adjacency matrix of metapopulation network
 adj_metapop =  p.adj_metapop;
 
 % Tau_b
 Tau_b = p.Tau_b;
 % Tau_p
 Tau_p = p.Tau_p;
-% Tau_n
-%Tau_n = p.Tau_n;
 
-% if sum(y0 < 0) > 0
-%     disp(find(y0 < 0))
-% end
 
 y0 = max(y0,0);
-
 BS = y0(1:NP);
 BR = y0(NP+1:2*NP);
 P = y0((2*NP+1):3*NP);
 I = y0((3*NP+1):4*NP);
 Btot = BS + BR;
 
+% functions of neutrophil hopping rate (in case we allow neutrophils to
+% chemotact)
 Tau_n_in = neutrophil_hopping(speed_neutro, branch_length, gamma, alpha, Btot, adj_metapop, p);
 Tau_n_out = neutrophil_hopping_outflux(speed_neutro, branch_length, gamma, alpha, Btot, adj_metapop, p, t);
 
 % Change in susceptible bacterial population
-dBS = ((rs*BS - rs*BS.*(Btot./Kc_patch)).*(1-m)) - (((P.^g)*phi).*BS) - (ep.*I.*BS./(1 + (Btot./Kd))) + (rr*BR.*(1-(Btot./Kc_patch))*m2) - D.*BS + (Tau_b.*A)*BS;%         + ((ghost_net*BS).*D)./PA;
-
-% .^g <- agregar esto a P
+dBS = ((rs*BS - rs*BS.*(Btot./Kc_patch)).*(1-m)) - (((P.^g)*phi).*BS) - (ep.*I.*BS./(1 + (Btot./Kd))) + (rr*BR.*(1-(Btot./Kc_patch))*m2) - D.*BS + (Tau_b.*A)*BS;
 
 % Change in resistant bacterial population
-dBR = ((rr*BR - rr*BR.*(Btot./Kc_patch))*(1-m2)) + (rs*BS.*(1-(Btot./Kc_patch))*m) - (ep.*I.*BR./(1+(Btot./Kd))) - D.*BR + (Tau_b.*A)*BR;%  (Tau_b.*A*(BR))./PA        + ((ghost_net*BR).*D)./PA;
+dBR = ((rr*BR - rr*BR.*(Btot./Kc_patch))*(1-m2)) + (rs*BS.*(1-(Btot./Kc_patch))*m) - (ep.*I.*BR./(1+(Btot./Kd))) - D.*BR + (Tau_b.*A)*BR;
 
 % Change in phage population
-dP = (((P.^g)*beta*phi).*BS) - (w*P) - DP.*P + (Tau_p.*A)*P;%         + ((ghost_net*P).*DP)./PA;
+dP = (((P.^g)*beta*phi).*BS) - (w*P) - DP.*P + (Tau_p.*A)*P;
 
 % Change immune response
-
 % immune continous models
+
 %dI = ((a*I).*(1-(I.*(1/Ki_patch)))).*(Btot./(Btot + Kn)) - (Tau_n_out.*I) + (Tau_n_in.*p.metapop_volume)*I; % no system-level immune saturation
 dI = ((a.*I).*(1-(I.*(1/Ki_patch)))).*(Btot./(Btot + Kn)).*(1-(sum(I.*PA.*p.nodes_pergen)/p.max_neutrophils)) - (Tau_n_out.*I) + (Tau_n_in.*p.metapop_volume)*I; % with system-level immune saturation
 %dI = (a*I).*(Btot./(Btot + Kn)).*(1-(sum(I.*PA.*p.nodes_pergen)/p.max_neutrophils)) - (Tau_n_out.*I) + (Tau_n_in.*p.metapop_volume)*I; % no immune density saturation only system-level saturation
-
 
 
 dx = [dBS; dBR; dP; dI];

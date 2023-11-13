@@ -1,4 +1,5 @@
-%% Code to plot the population dynamics of bacteria, phage and neutrophils at the node level
+%% Code to plot the population dynamics of bacteria, phage, and neutrophils at the node level
+
 function figures_metapop(t,y,p)
 
   % Plot densities
@@ -29,7 +30,7 @@ function figures_metapop(t,y,p)
     % exportgraphics(gcf,file_name);
    
     
-    % Plotting total numbers of bacteria, phage and neutrophils
+    % Plot numbers (CFU, PFU, and cell counts)
     figure(2);
     nrows = round(p.NP/3);
     count = 0;

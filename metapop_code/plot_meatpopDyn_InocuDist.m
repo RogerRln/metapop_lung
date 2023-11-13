@@ -1,3 +1,6 @@
+% Function to plot bacterial densities across nodes across time
+
+
 function plot_meatpopDyn_InocuDist(res, time, p, title_label)
 y = res;
 numel = size(y,1);

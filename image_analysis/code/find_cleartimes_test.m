@@ -1,3 +1,7 @@
+%% Function to calculate the infection clearance time using the total intensity signal of top and bottom compartments
+% based on a significan intensity threshold calculate when the intensity
+% signal decreases below the threshold
+
 function [clearance_top, clearance_bottom, indx_significant] = find_cleartimes_test(top_data, bottom_data, significant_intensity, time)
 
     live_top = top_data;

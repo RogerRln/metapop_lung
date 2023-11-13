@@ -1,5 +1,4 @@
-%% Function to plot bacterial dynamics of the Immune+/Phage+ case
-% we focus on showing the times when infection clears from network nodes
+%% We zoom in and show the times and pattern of infection clearance for the Immune+/Phage+ case
 
 function plot_meatpopDyn_zoomIposPpos(res, time, p, title_label, cbar_label, y_label, x_label)
 y = res;

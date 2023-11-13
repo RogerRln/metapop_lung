@@ -1,3 +1,6 @@
+% function to calculate the bacterial elimination time given a specific
+% bacterial extinction threshold (e.g., bacteria could become extinct when they reach 1 CFU count)
+
 function t_clear  = time_clearance_thresh(res, time, p, threshold)
 
 

@@ -1,3 +1,5 @@
+% Function to plot phage densities across nodes across time
+
 function plot_phageDyn_InocuDist(res, time, p, title_label)
 y = res;
 numel = size(y,1);

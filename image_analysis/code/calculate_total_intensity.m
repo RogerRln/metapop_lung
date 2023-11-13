@@ -1,3 +1,5 @@
+%% Function to calculate total intensity signal for the top and bottom
+% compartments of mice images of different immmune and phage conditions
 function [intensity_top, intensity_bottom] = calculate_total_intensity(InegPneg_data, time_labels)
 
 

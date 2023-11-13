@@ -1,3 +1,6 @@
+% Function to calculate phage and bacteria hopping rates as a function of
+% branch length and their diffusion constants.
+
 function [Tau_b, Tau_p, Tau_n] = dispersion_calculation(diff_bact, diff_phage, branch_length, adj_metapop)
     
     % Define your Tau matrices
@@ -8,10 +11,7 @@ function [Tau_b, Tau_p, Tau_n] = dispersion_calculation(diff_bact, diff_phage, b
     [source,target] = find(Tau_b);
     
     for i = 1:length(source)
-%             Tau_b(source(i), target(i)) = (branch_length(source(i))^2/diff_bact)*(branch_length(target(i))^2/branch_length(source(i))^2);
-%             Tau_p(source(i), target(i)) = (branch_length(source(i))^2/diff_phage)*(branch_length(target(i))^2/branch_length(source(i))^2);
-%             Tau_n(source(i), target(i)) = (branch_length(source(i))/speed_neutro)*(branch_length(target(i))/branch_length(source(i)));
-%           
+
             % use when considering crossing the whole branch length instead
             % of half the branch length
 %             Tau_b(source(i), target(i)) = (branch_length(source(i))^2/diff_bact);

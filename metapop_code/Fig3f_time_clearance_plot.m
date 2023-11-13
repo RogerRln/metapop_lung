@@ -1,4 +1,4 @@
-%% Code to simulate the effects of different mucin levels on the phage therapy of a P.a. infection
+%% Code to simulate the effects of different mucin levels on the phage clearance time of a P.a. infection
 % Inoculum: Phage-sensitive bacteria (BP)
 % Phage added two hours after infection
 

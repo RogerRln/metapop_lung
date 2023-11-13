@@ -1,3 +1,5 @@
+%% Function to plot the total intensity signal across time
+
 function  plot_fun_signal_intensity(intensity_data, xticks_lab, yl, title_lab, y_label, dead_alive, dead_txt_y, live_txt_y)
 
     if dead_alive

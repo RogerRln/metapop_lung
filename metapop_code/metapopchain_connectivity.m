@@ -1,4 +1,3 @@
-function [metapop_network, weight_mat, metapop_volume] = metapopchain_connectivity(adj_matrix, p, within_g, between_g, daupar, type)
 % The metapoo_connectivity function receives as input the adjacency matrix
 % that describes the metapopulation network and gives as an output a weighted matrix,
 % where the weights reflect different types of dispersion behaviors, for
@@ -20,6 +19,8 @@ function [metapop_network, weight_mat, metapop_volume] = metapopchain_connectivi
 % branches are larger than the weight conneting within generation or
 % parent-to-daughter patches. The weights are determined by input parameters: within_g,
 % between_g, and daupar. 
+
+function [metapop_network, weight_mat, metapop_volume] = metapopchain_connectivity(adj_matrix, p, within_g, between_g, daupar, type)
 
     if strcmp(type, 'homogeneous')  
         

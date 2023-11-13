@@ -1,3 +1,5 @@
+% function to calculate bacteria and phage diffusion constants from mucin
+% level, and neutrophil speed from mucin level
 function [bac_diff, phage_d, n_speed] = mucin_to_Diff(mu)
 %% calculate bacteria diffusion constant (DB) as a function of mucin concentration
 mucin = [2.5 8];

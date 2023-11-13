@@ -1,4 +1,4 @@
-%% Function to plot the bacterial dynamics across the metapopulation network
+%% Function to plot the bacterial dynamics across time across the network nodes
 
 function plot_meatpopDyn(res, time, p, title_label, cbar_label, y_label, x_label)
 y = res;

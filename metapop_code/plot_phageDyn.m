@@ -1,4 +1,4 @@
-%% Function to plot the phage dynamics across the metapopulation network
+%% Function to plot the phage dynamics across time across the network nodes
 
 function plot_phageDyn(res, time, p, title_label, cbar_label, y_label, x_label)
 
