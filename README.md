@@ -14,3 +14,6 @@ All the scripts used to generate main and supplementary figures are written in M
 - **image_analysis**: directory contains all the scripts (.m) and functions necessary to carry out imaging analysis of *P.a.* infected mice
 - **figures**: directory with saved figures after running Generate_all_figs.m
 - **data**: directory with necessary data to run the metapopulation model scripts
+
+**Note:**
+I have pre-saved the data obtained after performing the robustness analysis of the metapopulation model inside the **data** folder. Hence, the scripts that generate the figures from the robustness analysis used the pre-saved data. To generate the data from scratch (it takes 13hr) by uncommenting lines 45 to 73 of the script 'Fig5_heatmap_adsorption_rate_nlung.m' and lines 40 to 69 of the script 'FigS3_heatmap_mucin_nlung.m'.
