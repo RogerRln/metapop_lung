@@ -10,9 +10,9 @@ All the scripts used to generate main and supplementary figures are written in M
 1. Run the script 'Generate_all_figs.m' outside any folders to generate main and supplementary figures.
    1. In case you require more Java Heap Memory to run the 'Generate_all_figs.m' script, go to MATLAB -> Preferences -> General -> Java Heap memory, and increase the Java heap size, then click on apply and okay.
  
-- **metapop_code**: directory contains all the scripts (.m) and functions necessary to generate metapopulation model simulations
-- **image_analysis**: directory contains all the scripts (.m) and functions necessary to carry out imaging analysis of *P.a.* infected mice
-- **figures**: directory with saved figures after running Generate_all_figs.m
+- [**metapop_code**](./metapop_code): directory contains all the scripts (.m) and functions necessary to generate metapopulation model simulations
+- [**image_analysis**](./image_analysis): directory contains all the scripts (.m) and functions necessary to carry out imaging analysis of *P.a.* infected mice
+- [**figures**](./figures): directory with saved figures after running [Generate_all_figs.m](./Generate_all_figs.m)
 - **data**: directory with necessary data to run the metapopulation model scripts
 
 **Note:**
