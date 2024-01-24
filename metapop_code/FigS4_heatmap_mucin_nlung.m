@@ -84,7 +84,7 @@ colormap(cmap)
 ylabel(h, 'Probability of therapeutic success', 'interpreter', 'latex', 'fontsize', 17)
 
 immune_ticks =  string(perc.*100) + '%';
-xlabel('$N_{Lung}$', 'interpreter', 'latex')
+xlabel('$\%$ of neutrophil availability in the lungs', 'interpreter', 'latex')
 tot_xticks = length(immune_ticks);
 set(gca,'XTick', [2:2:tot_xticks], 'XTickLabel', immune_ticks([2:2:tot_xticks]))
 xtickangle(45)
@@ -93,7 +93,7 @@ ylabel('Mucin concentration (\%)', 'interpreter', 'latex')
 set(gca,'YTick', 1:4:length(mucin_conc), 'yticklabel', mucin_conc(1:4:length(mucin_conc)));
 
 
-title('Probability of success in clearing the infection', 'FontSize', 18, 'interpreter', 'latex')
+title({'Effects of varying mucin and innate immune levels'; 'on the spatial model outcome'}, 'FontSize', 18, 'interpreter', 'latex')
 set(gca, 'fontsize', 17, 'linewidth', 1.5, 'TickDir','out')
 
 
@@ -111,7 +111,8 @@ cmap = colormap(parula(1e3));
 colormap(cmap)
 ylabel(h, 'Time (h)', 'interpreter', 'latex', 'fontsize', 14)
 
-xlabel('$N_{Lung}$', 'interpreter', 'latex', 'fontsize', 15)
+xlabel('$\%$ of neutrophil availability in the lungs', 'interpreter', 'latex')
+tot_xticks = length(immune_ticks);
 set(gca,'XTick', [2:2:tot_xticks], 'XTickLabel', immune_ticks([2:2:tot_xticks]))
 xtickangle(45)
 

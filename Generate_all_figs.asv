@@ -4,9 +4,6 @@
 
 % All figures are saved in .png and .eps formats inside 'figures' folder 
 
-% Run the script within the current PATH (not inside metapop_code nor inside
-% image_analysis subfolders)
-
 clear
 clc
 close all
@@ -86,9 +83,9 @@ close all
 % Fig. 5 Outcomes of the robustness analysis: the probability of therapeutic success given intermediate innate immune response levels and varying phage adsorption rates
 
 run([pwd '/metapop_code/Fig5_heatmap_adsorption_rate_nlung.m'])
-filename = [pwd '/figures/Fig5.png'];
+filename = [pwd '/../figures/Fig5.png'];
 exportgraphics(figure(1), filename, 'Resolution', 300)
-filename = [pwd '/figures/Fig5.eps'];
+filename = [pwd '/../figures/Fig5.eps'];
 exportgraphics(figure(1), filename)
 clear
 close all
@@ -96,10 +93,10 @@ close all
 
 % Fig. 6 In vivo P.a. murine pneumonia data
 
-run([pwd '/image_analysis/code/Fig6_Biolumi_time_series_clearance.m'])
-filename = [pwd '/figures/Fig6.png'];
+run([pwd '/../image_analysis/code/Fig6_Biolumi_time_series_clearance.m'])
+filename = [pwd '/../figures/Fig6.png'];
 exportgraphics(figure(1), filename, 'Resolution', 300)
-filename = [pwd '/figures/Fig6.eps'];
+filename = [pwd '/../figures/Fig6.eps'];
 exportgraphics(figure(1), filename)
 clear
 close all
@@ -107,19 +104,19 @@ close all
 % Fig. 7 Time series of total intensity signal and the infection clearance analysis using in vivo P.a. murine pneumonia data
 
 % Fig. 7a
-run([pwd '/image_analysis/code/Fig7a_plot_tot_intensity_WT_Rag2_phage_mice.m'])
-filename = [pwd '/figures/Fig7a.png'];
+run([pwd '/../image_analysis/code/Fig7a_plot_tot_intensity_WT_Rag2_phage_mice.m'])
+filename = [pwd '/../figures/Fig7a.png'];
 exportgraphics(figure(1), filename, 'Resolution', 300)
-filename = [pwd '/figures/Fig7a.eps'];
+filename = [pwd '/../figures/Fig7a.eps'];
 exportgraphics(figure(1), filename)
 clear
 close all
 
 % Fig. 7b
-run([pwd '/image_analysis/code/Fg7b_plot_time_to_clearance.m'])
-filename = [pwd '/figures/Fig7b.png'];
+run([pwd '/../image_analysis/code/Fg7b_plot_time_to_clearance.m'])
+filename = [pwd '/../figures/Fig7b.png'];
 exportgraphics(figure(1), filename, 'Resolution', 300)
-filename = [pwd '/figures/Fig7b.eps'];
+filename = [pwd '/../figures/Fig7b.eps'];
 exportgraphics(figure(1), filename)
 clear
 close all
@@ -129,16 +126,16 @@ close all
 % Fig. S1 Relationship between mucin concentration and bacterial speed and phage diffusion
 
 % Fig. S1a
-run([pwd '/metapop_code/FigS1_mucin_vs_diff.m'])
+run([pwd '/../metapop_code/FigS1_mucin_vs_diff.m'])
 filename = [pwd '/figures/FigS1a.png'];
 exportgraphics(figure(2), filename, 'Resolution', 300)
-filename = [pwd '/figures/FigS1a.eps'];
+filename = [pwd '/../figures/FigS1a.eps'];
 exportgraphics(figure(2), filename)
 
 % Fig. S1b
-filename = [pwd '/figures/FigS1b.png'];
+filename = [pwd '/../figures/FigS1b.png'];
 exportgraphics(figure(1), filename, 'Resolution', 300)
-filename = [pwd '/figures/FigS1b.eps'];
+filename = [pwd '/../figures/FigS1b.eps'];
 exportgraphics(figure(1), filename)
 clear
 close all
@@ -146,58 +143,58 @@ close all
 % Fig. S2 Population dynamics at the node level under different phage and immune treatments
 
 % Fig. S2a
-run([pwd '/metapop_code/FigS2a_neutropenic_untreated.m'])
+run([pwd '/../metapop_code/FigS2a_neutropenic_untreated.m'])
 filename = [pwd '/figures/FigS2a.png'];
 exportgraphics(figure(1), filename, 'Resolution', 300)
-filename = [pwd '/figures/FigS2a.eps'];
+filename = [pwd '/../figures/FigS2a.eps'];
 exportgraphics(figure(1), filename)
 clear
 close all
 
 % Fig. S2b
-run([pwd '/metapop_code/FigS2b_immuno_untreated.m'])
-filename = [pwd '/figures/FigS2b.png'];
+run([pwd '/../metapop_code/FigS2b_immuno_untreated.m'])
+filename = [pwd '/../figures/FigS2b.png'];
 exportgraphics(figure(1), filename, 'Resolution', 300)
-filename = [pwd '/figures/FigS2b.eps'];
+filename = [pwd '/../figures/FigS2b.eps'];
 exportgraphics(figure(1), filename)
 clear
 close all
 
 % Fig. S2c
-run([pwd '/metapop_code/FigS2c_neutropenic_phage.m'])
-filename = [pwd '/figures/FigS2c.png'];
+run([pwd '/../metapop_code/FigS2c_neutropenic_phage.m'])
+filename = [pwd '/../figures/FigS2c.png'];
 exportgraphics(figure(1), filename, 'Resolution', 300)
-filename = [pwd '/figures/FigS2c.eps'];
+filename = [pwd '/../figures/FigS2c.eps'];
 exportgraphics(figure(1), filename)
 clear
 close all
 
 % Fig. S3 Infection clearance time difference between node i and the last node of the network as a function of the natural log of the volume ratio, V_i/V_bottom
 
-run([pwd '/metapop_code/FigS3_volume_clearance_time_diff.m'])
-filename = [pwd '/figures/FigS3.png'];
+run([pwd '/../metapop_code/FigS3_volume_clearance_time_diff.m'])
+filename = [pwd '/../figures/FigS3.png'];
 exportgraphics(figure(1), filename, 'Resolution', 300)
-filename = [pwd '/figures/FigS3.eps'];
+filename = [pwd '/../figures/FigS3.eps'];
 exportgraphics(figure(1), filename)
 clear
 close all
 
 % Fig. S4 Robustness analysis outcome: the probability of therapeutic success given intermediate innate immune states and varying mucin levels
 
-run([pwd '/metapop_code/FigS4_heatmap_mucin_nlung.m'])
+run([pwd '/../metapop_code/FigS4_heatmap_mucin_nlung.m'])
 filename = [pwd '/figures/FigS4.png'];
 exportgraphics(figure(1), filename, 'Resolution', 300)
-filename = [pwd '/figures/FigS4.eps'];
+filename = [pwd '/../figures/FigS4.eps'];
 exportgraphics(figure(1), filename)
 clear
 close all
 
 % Fig. S5 Bacterial dynamics of a well-mixed model given intermediate innate immune response levels
 
-run([pwd '/metapop_code/FigS5_well_mixed_immunodeficiency.m'])
-filename = [pwd '/figures/FigS5.png'];
+run([pwd '/../metapop_code/FigS5_well_mixed_immunodeficiency.m'])
+filename = [pwd '/../figures/FigS5.png'];
 exportgraphics(figure(1), filename, 'Resolution', 300)
-filename = [pwd '/figures/FigS5.eps'];
+filename = [pwd '/../figures/FigS5.eps'];
 exportgraphics(figure(1), filename)
 clear
 close all

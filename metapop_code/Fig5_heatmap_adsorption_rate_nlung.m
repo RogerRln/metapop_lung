@@ -77,6 +77,8 @@ load '../data/Prob_success_PhageAdsorp_vs_nlung_test.mat'
 
 % heatmap
 figure(1)
+therapeutic_success = therapeutic_success(6:end,:);
+adsorption_vec = adsorption_vec(6:end);
 heat = imagesc(therapeutic_success, [0 1]);
 h = colorbar;
 caxis([0 1])
@@ -86,7 +88,7 @@ colormap(cmap)
 ylabel(h, 'Probability of therapeutic success', 'interpreter', 'latex', 'fontsize', 17)
 
 immune_ticks =  string(perc.*100) + '%';
-xlabel('$N_{lung}$', 'interpreter', 'latex')
+xlabel('$\%$ of neutrophil availability in the lungs', 'interpreter', 'latex')
 tot_xticks = length(immune_ticks);
 set(gca,'XTick', [2:2:tot_xticks], 'XTickLabel', immune_ticks([2:2:tot_xticks]))
 xtickangle(45)
@@ -94,8 +96,32 @@ adsorption_ticks = '10^{' + string(log10(adsorption_vec)) + '}';
 ylabel('Phage adsorption rate ($(ml/PFU)^\sigma\, h^{-1}$) ', 'interpreter', 'latex')
 set(gca,'YTick', 1:5:length(adsorption_vec), 'yticklabel', adsorption_ticks(1:5:length(adsorption_ticks)));
 
-title('Probability of success in clearing the infection', 'FontSize', 18, 'interpreter', 'latex')
+title({'Effects of varying $\widetilde{\phi}$ and innate immune levels'; 'on the spatial model outcome'}, 'FontSize', 18, 'interpreter', 'latex')
 set(gca, 'fontsize', 17, 'linewidth', 1.5, 'TickDir','out')
+
+% well-mixed model outcome
+load '../data/tot_bact_density_wellmixed_phageAdsorp.mat'
+
+Tot_density_copy = Tot_density(6:end,:);
+Tot_density_copy(Tot_density_copy == 0) = 1;
+Tot_density_copy = log10(Tot_density_copy);
+
+[row,col] = size(Tot_density_copy);
+ind_clearance =  zeros(col, 1);
+for i = 1:col
+    ind = find(Tot_density_copy(:,i) < 1);
+    if isempty(ind)
+        ind_clearance(i) = 0;
+    else
+        ind_clearance(i) = ind(end)+0.5;
+    end
+end
+
+hold on
+[row, col] = size(therapeutic_success);
+plot([1:7 7.33 7.34 8:21]', [ind_clearance(1:7); ind_clearance(7); ind_clearance(8); ind_clearance(8:20); ind_clearance(20)], '-', 'color', 'w','LineWidth', 3)
+hold off
+
 
 % filename = '/Users/rrodriguez77/Dropbox (GaTech)/Phage-Immune_host-pathogen project/draft_metapopulation/version2_Sep132022/figures/variation_initial_conditions/PhageAdsorp_vs_nlung/prob_success.eps';
 % exportgraphics(gcf, filename);
